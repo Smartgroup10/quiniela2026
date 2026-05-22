@@ -1,0 +1,153 @@
+// Scoring engine — pure functions, no DB access.
+// Source of truth: quiniela 2.md spec. DO NOT modify scoring logic.
+
+export function scoreMatchPrediction(
+  pred: { homeGoals: number; awayGoals: number },
+  real: { homeGoals: number; awayGoals: number },
+  rules: { matchExactScore: number; matchCorrectResult: number },
+): number {
+  // Exact score
+  if (pred.homeGoals === real.homeGoals && pred.awayGoals === real.awayGoals) {
+    return rules.matchExactScore;
+  }
+
+  // Correct result (1X2)
+  const predSign = Math.sign(pred.homeGoals - pred.awayGoals);
+  const realSign = Math.sign(real.homeGoals - real.awayGoals);
+  if (predSign === realSign) {
+    return rules.matchCorrectResult;
+  }
+
+  return 0;
+}
+
+export function scoreGroupPrediction(
+  pred: { firstTeamId: string; secondTeamId: string; thirdTeamId: string; fourthTeamId: string },
+  realTeams: { teamId: string; finalPosition: 1 | 2 | 3 | 4; classified: boolean }[],
+  rules: { groupExactPosition: number; groupClassifiedOtherPos: number },
+): number {
+  const predList = [pred.firstTeamId, pred.secondTeamId, pred.thirdTeamId, pred.fourthTeamId];
+  let pts = 0;
+
+  predList.forEach((teamId, idx) => {
+    const predictedPos = idx + 1;
+    const real = realTeams.find((r) => r.teamId === teamId);
+    if (!real) return;
+
+    if (real.finalPosition === predictedPos) {
+      pts += rules.groupExactPosition; // 2 pts
+    } else if (real.classified) {
+      pts += rules.groupClassifiedOtherPos; // 1 pt
+    }
+  });
+
+  return pts;
+}
+
+export function scoreBestThirdPrediction(
+  pred: { thirdTeamId: string; willPass: boolean },
+  realTeams: { teamId: string; realBestThird: boolean }[],
+  rules: { bestThirdCorrect: number },
+): number {
+  const real = realTeams.find((r) => r.teamId === pred.thirdTeamId);
+  if (!real) return 0;
+  return pred.willPass === real.realBestThird ? rules.bestThirdCorrect : 0;
+}
+
+export function scoreBracketMatch(
+  pred: {
+    predictedHomeTeamId?: string | null;
+    predictedAwayTeamId?: string | null;
+    homeGoals: number;
+    awayGoals: number;
+    winnerTeamId: string;
+    wentToPenalties: boolean;
+  },
+  real: {
+    homeTeamId: string;
+    awayTeamId: string;
+    homeGoals: number;
+    awayGoals: number;
+    winnerTeamId: string;
+    wentToPenalties: boolean;
+  },
+  rules: {
+    knockoutWinner: number;
+    knockoutExactScore: number;
+    knockoutPenalties: number;
+  },
+): number {
+  let pts = 0;
+
+  // 1. Winner correct?
+  const winnerCorrect = pred.winnerTeamId === real.winnerTeamId;
+  if (!winnerCorrect) return 0;
+
+  pts += rules.knockoutWinner; // +3
+
+  // 2. Do both teams in the matchup coincide?
+  const pairingMatches =
+    pred.predictedHomeTeamId &&
+    pred.predictedAwayTeamId &&
+    ((pred.predictedHomeTeamId === real.homeTeamId && pred.predictedAwayTeamId === real.awayTeamId) ||
+      (pred.predictedHomeTeamId === real.awayTeamId && pred.predictedAwayTeamId === real.homeTeamId));
+
+  if (pairingMatches) {
+    // 3. Exact score at 120'
+    const exactScore =
+      (pred.homeGoals === real.homeGoals && pred.awayGoals === real.awayGoals) ||
+      (pred.predictedHomeTeamId === real.awayTeamId &&
+        pred.homeGoals === real.awayGoals &&
+        pred.awayGoals === real.homeGoals);
+
+    if (exactScore) pts += rules.knockoutExactScore; // +2
+  }
+
+  // 4. Penalties bonus
+  if (real.wentToPenalties && pred.wentToPenalties) {
+    pts += rules.knockoutPenalties; // +1
+  }
+
+  return pts;
+}
+
+export function scoreSpecials(
+  specials: {
+    championTeamId?: string | null;
+    runnerUpTeamId?: string | null;
+    thirdTeamId?: string | null;
+    topScorerName?: string | null;
+    mvpName?: string | null;
+    revelationTeamId?: string | null;
+    championPhase2TeamId?: string | null;
+  },
+  real: {
+    championTeamId?: string | null;
+    runnerUpTeamId?: string | null;
+    thirdTeamId?: string | null;
+    topScorerName?: string | null;
+    mvpName?: string | null;
+    revelationTeamId?: string | null;
+  },
+  rules: {
+    champion: number;
+    runnerUp: number;
+    third: number;
+    topScorer: number;
+    mvp: number;
+    revelation: number;
+    championPhase2: number;
+  },
+) {
+  const normalize = (s?: string | null) => (s ?? '').trim().toLowerCase();
+
+  return {
+    championPoints: specials.championTeamId === real.championTeamId ? rules.champion : 0,
+    runnerUpPoints: specials.runnerUpTeamId === real.runnerUpTeamId ? rules.runnerUp : 0,
+    thirdPoints: specials.thirdTeamId === real.thirdTeamId ? rules.third : 0,
+    topScorerPoints: normalize(specials.topScorerName) === normalize(real.topScorerName) && normalize(real.topScorerName) !== '' ? rules.topScorer : 0,
+    mvpPoints: normalize(specials.mvpName) === normalize(real.mvpName) && normalize(real.mvpName) !== '' ? rules.mvp : 0,
+    revelationPoints: specials.revelationTeamId === real.revelationTeamId ? rules.revelation : 0,
+    championPhase2Points: specials.championPhase2TeamId === real.championTeamId ? rules.championPhase2 : 0,
+  };
+}

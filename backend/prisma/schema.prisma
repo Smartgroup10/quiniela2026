@@ -1,0 +1,204 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────────────────────────
+// Usuarios
+// ────────────────────────────────────────────────────────────────
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  password           String
+  name               String
+  alias              String?
+  avatarUrl          String?
+  favoriteTeamId     String?
+  role               String   @default("PLAYER") // PLAYER | ADMIN
+  mustChangePassword Boolean  @default(false)
+  registeredAt       DateTime @default(now())
+  phase1Available    Boolean  @default(true)
+  phase2Available    Boolean  @default(true)
+  // Puntos cacheados para ranking
+  groupPoints        Int      @default(0)
+  bestThirdPoints    Int      @default(0)
+  bonusPhase1Points  Int      @default(0)
+  knockoutPoints     Int      @default(0)
+  bonusPhase2Points  Int      @default(0)
+  totalPoints        Int      @default(0)
+
+  matchPredictions     MatchPrediction[]
+  groupPredictions     GroupPrediction[]
+  thirdPredictions     BestThirdPrediction[]
+  specials             SpecialPrediction?
+  bracketPredictions   BracketPrediction[]
+  matchPoints          Int      @default(0)
+  createdAt            DateTime @default(now())
+}
+
+// ────────────────────────────────────────────────────────────────
+// Estado del torneo
+// ────────────────────────────────────────────────────────────────
+
+model Tournament {
+  id                    String   @id @default(cuid())
+  name                  String   @default("Mundial 2026")
+  phase1OpensAt         DateTime
+  phase1ClosesAt        DateTime
+  phase2OpensAt         DateTime?
+  phase2ClosesAt        DateTime?
+  status                String   @default("SETUP") // SETUP | PHASE1_OPEN | PHASE1_CLOSED | PHASE2_OPEN | PHASE2_CLOSED | FINISHED
+  realChampionTeamId    String?
+  realRunnerUpTeamId    String?
+  realThirdTeamId       String?
+  realTopScorerName     String?
+  realMvpName           String?
+  realRevelationTeamId  String?
+}
+
+model ScoringConfig {
+  id                      String    @id @default(cuid())
+  groupExactPosition      Int       @default(2)
+  groupClassifiedOtherPos Int       @default(1)
+  bestThirdCorrect        Int       @default(2)
+  champion                Int       @default(10)
+  runnerUp                Int       @default(6)
+  third                   Int       @default(4)
+  topScorer               Int       @default(5)
+  mvp                     Int       @default(3)
+  revelation              Int       @default(3)
+  knockoutWinner          Int       @default(3)
+  knockoutExactScore      Int       @default(2)
+  knockoutPenalties       Int       @default(1)
+  championPhase2          Int       @default(8)
+  matchExactScore         Int       @default(3)
+  matchCorrectResult      Int       @default(1)
+  lockedAt                DateTime?
+}
+
+// ────────────────────────────────────────────────────────────────
+// Equipos y partidos
+// ────────────────────────────────────────────────────────────────
+
+model Team {
+  id                String   @id @default(cuid())
+  code              String   @unique
+  name              String
+  flagUrl           String?
+  groupKey          String?
+  realFinalPosition Int?
+  realClassified    Boolean  @default(false)
+  realBestThird     Boolean  @default(false)
+}
+
+model Match {
+  id              String   @id @default(cuid())
+  stage           String   // GROUP | KNOCKOUT
+  round           String?  // R32 | R16 | QF | SF | THIRD_PLACE | FINAL
+  matchNumber     Int
+  kickoffAt       DateTime
+  venue           String?
+  homeTeamId      String?
+  awayTeamId      String?
+  homeGoals       Int?
+  awayGoals       Int?
+  winnerTeamId    String?
+  wentToPenalties Boolean  @default(false)
+  status          String   @default("SCHEDULED") // SCHEDULED | LIVE | FINISHED | CANCELLED
+
+  matchPredictions   MatchPrediction[]
+  bracketPredictions BracketPrediction[]
+}
+
+// ────────────────────────────────────────────────────────────────
+// Pronósticos Fase 1
+// ────────────────────────────────────────────────────────────────
+
+model GroupPrediction {
+  id           String @id @default(cuid())
+  userId       String
+  groupKey     String
+  firstTeamId  String
+  secondTeamId String
+  thirdTeamId  String
+  fourthTeamId String
+  pointsEarned Int    @default(0)
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupKey])
+}
+
+model BestThirdPrediction {
+  id           String  @id @default(cuid())
+  userId       String
+  groupKey     String
+  willPass     Boolean
+  pointsEarned Int     @default(0)
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupKey])
+}
+
+model SpecialPrediction {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  championTeamId           String?
+  runnerUpTeamId           String?
+  thirdTeamId              String?
+  topScorerName            String?
+  mvpName                  String?
+  revelationTeamId         String?
+  championPhase2TeamId     String?
+  championPoints           Int     @default(0)
+  runnerUpPoints           Int     @default(0)
+  thirdPoints              Int     @default(0)
+  topScorerPoints          Int     @default(0)
+  mvpPoints                Int     @default(0)
+  revelationPoints         Int     @default(0)
+  championPhase2Points     Int     @default(0)
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ────────────────────────────────────────────────────────────────
+// Pronósticos Fase 2 (bracket)
+// ────────────────────────────────────────────────────────────────
+
+model BracketPrediction {
+  id                  String  @id @default(cuid())
+  userId              String
+  matchId             String
+  predictedHomeTeamId String?
+  predictedAwayTeamId String?
+  homeGoals           Int
+  awayGoals           Int
+  winnerTeamId        String
+  wentToPenalties     Boolean @default(false)
+  pointsEarned        Int     @default(0)
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match               Match   @relation(fields: [matchId], references: [id])
+
+  @@unique([userId, matchId])
+}
+
+// ────────────────────────────────────────────────────────────────
+// Pronósticos de partidos (fase de grupos)
+// ────────────────────────────────────────────────────────────────
+
+model MatchPrediction {
+  id           String @id @default(cuid())
+  userId       String
+  matchId      String
+  homeGoals    Int
+  awayGoals    Int
+  pointsEarned Int    @default(0)
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match        Match  @relation(fields: [matchId], references: [id])
+
+  @@unique([userId, matchId])
+}
