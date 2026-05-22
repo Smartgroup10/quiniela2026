@@ -19,12 +19,15 @@ const AVATARS = [
 
 export { AVATARS };
 
+import { useBreakpoint } from '../hooks/useBreakpoint';
+
 interface AvatarPickerProps {
   value?: string;
   onChange: (url: string) => void;
 }
 
 export default function AvatarPicker({ value, onChange }: AvatarPickerProps) {
+  const { isMobile } = useBreakpoint();
   return (
     <div>
       <div style={{
@@ -35,7 +38,7 @@ export default function AvatarPicker({ value, onChange }: AvatarPickerProps) {
       </div>
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(8, 1fr)',
+        gridTemplateColumns: isMobile ? 'repeat(4, 1fr)' : 'repeat(8, 1fr)',
         gap: 8,
       }}>
         {AVATARS.map((av) => {

@@ -11,6 +11,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useTournamentStore } from '../stores/tournamentStore';
 import { dashboardApi, type DashboardData, type LeaderboardEntry } from '../api/dashboard';
 import TeamFlag from '../components/TeamFlag';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -102,6 +103,7 @@ function getActivePhaseIndex(status: string | undefined): number {
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
+  const { isMobile } = useBreakpoint();
   const { setTournament } = useTournamentStore();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -186,7 +188,7 @@ export default function Dashboard() {
       {/* ============ ALERTS ============ */}
       {showAlerts && (
         <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24,
+          display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12, marginBottom: 24,
         }}>
           {alerts!.missingPredictions > 0 && (
             <div style={{
@@ -269,7 +271,7 @@ export default function Dashboard() {
 
       {/* ============ KPI CARDS ============ */}
       <div style={{
-        display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 14, marginBottom: 24,
+        display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr 1fr', gap: 14, marginBottom: 24,
       }}>
         {/* Card: Tournament status */}
         <div style={{
@@ -416,7 +418,7 @@ export default function Dashboard() {
       </div>
 
       {/* ============ BOTTOM GRID ============ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.6fr 1fr', gap: 14 }}>
         {/* Ranking */}
         <div style={{
           background: V.bg1, border: `1px solid ${V.line}`,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Dropdown, Button } from 'antd';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import ChangePasswordModal from '../ChangePasswordModal';
 import { useAuthStore } from '../../stores/authStore';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const { Content } = Layout;
 
@@ -25,10 +26,15 @@ const NAV_ITEMS = [
 const ADMIN_NAV = { key: '/admin', icon: <SettingOutlined />, label: 'Administración' };
 
 export default function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth < 768);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
+  const { isMobile } = useBreakpoint();
+
+  useEffect(() => {
+    if (isMobile) setCollapsed(true);
+  }, [isMobile]);
 
   const handleLogout = () => {
     logout();
@@ -46,21 +52,31 @@ export default function AppLayout() {
   const initial = (user?.alias || user?.name || '?')[0].toUpperCase();
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: collapsed ? '0px 1fr' : '248px 1fr', minHeight: '100vh', transition: 'grid-template-columns 0.25s ease' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: (collapsed || isMobile) ? '1fr' : '248px 1fr', minHeight: '100vh', transition: 'grid-template-columns 0.25s ease' }}>
       {/* ============ SIDEBAR ============ */}
       <aside
         style={{
           background: 'var(--bg-1)',
-          borderRight: '1px solid var(--line)',
+          borderRight: isMobile ? 'none' : '1px solid var(--line)',
           display: 'flex',
           flexDirection: 'column',
           padding: collapsed ? '20px 0' : '20px 14px',
           gap: 4,
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
+          ...(isMobile ? {
+            position: 'fixed' as const,
+            top: 0,
+            left: 0,
+            zIndex: 100,
+            height: '100vh',
+            width: collapsed ? 0 : 280,
+            boxShadow: collapsed ? 'none' : '4px 0 24px rgba(0,0,0,0.5)',
+          } : {
+            position: 'sticky' as const,
+            top: 0,
+            height: '100vh',
+            width: collapsed ? 0 : 248,
+          }),
           overflow: collapsed ? 'hidden' : 'auto',
-          width: collapsed ? 0 : 248,
           opacity: collapsed ? 0 : 1,
           transition: 'width 0.25s ease, opacity 0.2s ease, padding 0.25s ease',
         }}
@@ -253,6 +269,19 @@ export default function AppLayout() {
         </Dropdown>
       </aside>
 
+      {/* Mobile backdrop */}
+      {isMobile && !collapsed && (
+        <div
+          onClick={() => setCollapsed(true)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 99,
+          }}
+        />
+      )}
+
       {/* ============ MAIN AREA ============ */}
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {/* Compact header (mobile toggle only) */}
@@ -272,7 +301,7 @@ export default function AppLayout() {
           />
         </header>
 
-        <Content style={{ padding: '28px 40px 60px', maxWidth: 1400, width: '100%' }}>
+        <Content style={{ padding: isMobile ? '20px 16px 40px' : '28px 40px 60px', maxWidth: 1400, width: '100%' }}>
           <Outlet />
         </Content>
       </div>

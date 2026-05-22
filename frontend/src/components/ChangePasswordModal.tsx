@@ -4,10 +4,12 @@ import { LockOutlined } from '@ant-design/icons';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
 import AvatarPicker from './AvatarPicker';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
 export default function ChangePasswordModal() {
   const [loading, setLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
+  const { isMobile } = useBreakpoint();
   const [form] = Form.useForm();
   const { user, setUser } = useAuthStore();
 
@@ -39,7 +41,7 @@ export default function ChangePasswordModal() {
       maskClosable={false}
       keyboard={false}
       footer={null}
-      width={560}
+      width={isMobile ? '95vw' : 560}
     >
       <Typography.Paragraph type="secondary" style={{ marginBottom: 16 }}>
         Tu cuenta fue creada con una contrasena temporal. Debes cambiarla antes de continuar.

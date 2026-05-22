@@ -3,6 +3,7 @@ import { Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import { leaderboardApi, type LeaderboardEntry } from '../api/leaderboard';
 import { useAuthStore } from '../stores/authStore';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
 /* ────────────── Palette shortcuts ────────────── */
 const V = {
@@ -68,6 +69,7 @@ export default function Leaderboard() {
   const [filter, setFilter] = useState<'total' | 'partidos' | 'grupos'>('total');
   const currentUserId = useAuthStore((s) => s.user?.id);
   const currentUser = useAuthStore((s) => s.user);
+  const { isMobile } = useBreakpoint();
 
   useEffect(() => {
     leaderboardApi.get().then(({ data }) => {
@@ -172,7 +174,7 @@ export default function Leaderboard() {
             linear-gradient(180deg, ${V.bg1} 0%, ${V.bg2} 100%)
           `,
           border: `1px solid ${V.line}`, borderRadius: 24,
-          padding: '40px 32px 36px', marginBottom: 28, overflow: 'hidden',
+          padding: isMobile ? '30px 16px 24px' : '40px 32px 36px', marginBottom: 28, overflow: 'hidden',
         }}>
           {/* Pitch lines pattern */}
           <div style={{
@@ -210,12 +212,12 @@ export default function Leaderboard() {
 
           {/* Podium: 2nd - 1st - 3rd */}
           <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1.2fr 1fr',
+            display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.2fr 1fr',
             gap: 18, alignItems: 'end',
             position: 'relative', zIndex: 2,
             maxWidth: 800, margin: '0 auto',
           }}>
-            {[podium[1], podium[0], podium[2]].map((entry, displayIdx) => {
+            {(isMobile ? [podium[0], podium[1], podium[2]] : [podium[1], podium[0], podium[2]]).map((entry, displayIdx) => {
               const place = displayIdx === 1 ? 1 : displayIdx === 0 ? 2 : 3;
               const medal = MEDAL_STYLES[place as 1 | 2 | 3];
               const isFirst = place === 1;
@@ -234,7 +236,7 @@ export default function Leaderboard() {
                   padding: isFirst ? '42px 20px 28px' : '28px 18px 22px',
                   textAlign: 'center',
                   position: 'relative',
-                  transform: isFirst ? 'translateY(-20px)' : 'none',
+                  transform: isFirst && !isMobile ? 'translateY(-20px)' : 'none',
                   boxShadow: isFirst ? `0 30px 60px -20px rgba(212,169,60,0.25), 0 0 0 1px ${V.goldLine}` : 'none',
                   transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}>
@@ -339,7 +341,7 @@ export default function Leaderboard() {
       {myRank > 0 && (above || below) && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: above && below ? '1fr 1fr' : '1fr',
+          gridTemplateColumns: isMobile ? '1fr' : (above && below ? '1fr 1fr' : '1fr'),
           gap: 14, marginBottom: 28,
         }}>
           {/* Above me */}
@@ -390,9 +392,11 @@ export default function Leaderboard() {
         </div>
 
         {/* Table grid */}
+        <div style={{ overflowX: isMobile ? 'auto' : 'visible', WebkitOverflowScrolling: 'touch' }}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: '60px 1fr 100px 80px 80px 100px',
+          minWidth: isMobile ? 600 : 'auto',
         }}>
           {/* Head */}
           {['#', 'Jugador', 'Partidos', 'Grupos', '3os', 'Total'].map((h, i) => (
@@ -491,6 +495,7 @@ export default function Leaderboard() {
           })}
         </div>
 
+        </div>
         {/* Footer */}
         <div style={{
           padding: '14px 22px',

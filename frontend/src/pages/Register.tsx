@@ -38,6 +38,7 @@ export default function Register() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      padding: '24px 16px',
       background: 'linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)',
     }}>
       <Card style={{ width: 540, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.5)', background: '#1A1A1A', border: '1px solid #2D2D2D' }}>

@@ -3,6 +3,7 @@ import { message } from 'antd';
 import { useAuthStore } from '../stores/authStore';
 import { authApi } from '../api/auth';
 import AvatarPicker from '../components/AvatarPicker';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 import { Link } from 'react-router-dom';
 
 const V = {
@@ -24,6 +25,7 @@ const AV_COLORS = [
 
 export default function Profile() {
   const { user, setUser } = useAuthStore();
+  const { isMobile } = useBreakpoint();
   const [saving, setSaving] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatarUrl || '');
 
@@ -70,7 +72,7 @@ export default function Profile() {
         color: V.fg0, margin: '0 0 28px',
       }}>Mi Perfil</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 20, maxWidth: 900 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.5fr', gap: 20, maxWidth: 900 }}>
         {/* Card: Info */}
         <div style={{
           background: V.bg1, border: `1px solid ${V.line}`,

@@ -4,11 +4,13 @@ import { Form, Input, Button, message } from 'antd';
 import { MailOutlined, LockOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
+  const { isMobile } = useBreakpoint();
 
   // Countdown to tournament start (11 Jun 2026 18:00 CET)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
@@ -45,10 +47,11 @@ export default function Login() {
     <div style={{
       minHeight: '100vh',
       display: 'grid',
-      gridTemplateColumns: '1.1fr 1fr',
+      gridTemplateColumns: isMobile ? '1fr' : '1.1fr 1fr',
     }}>
       {/* ============ HERO (Left) ============ */}
       <div style={{
+        display: isMobile ? 'none' : 'flex',
         position: 'relative',
         background: `
           radial-gradient(circle at 20% 110%, rgba(212,169,60,0.12) 0%, transparent 45%),
@@ -56,7 +59,6 @@ export default function Login() {
           var(--bg-1)
         `,
         padding: '56px 64px',
-        display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
       }}>
@@ -225,7 +227,7 @@ export default function Login() {
       {/* ============ FORM (Right) ============ */}
       <div style={{
         background: 'var(--bg-0)',
-        padding: '56px 64px',
+        padding: isMobile ? '32px 24px' : '56px 64px',
         display: 'flex', flexDirection: 'column',
         justifyContent: 'center', position: 'relative',
       }}>
@@ -340,14 +342,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Responsive: stack on mobile */}
-      <style>{`
-        @media (max-width: 980px) {
-          div[style*="gridTemplateColumns: '1.1fr 1fr'"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
