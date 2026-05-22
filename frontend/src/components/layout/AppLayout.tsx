@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Button, Typography, Avatar, Dropdown } from 'antd';
+import { Layout, Dropdown, Button } from 'antd';
 import {
   HomeOutlined,
   TrophyOutlined,
@@ -14,20 +14,21 @@ import {
 import ChangePasswordModal from '../ChangePasswordModal';
 import { useAuthStore } from '../../stores/authStore';
 
-const { Header, Sider, Content } = Layout;
+const { Content } = Layout;
+
+const NAV_ITEMS = [
+  { key: '/', icon: <HomeOutlined />, label: 'Inicio' },
+  { key: '/phase1', icon: <TrophyOutlined />, label: 'Fase 1' },
+  { key: '/leaderboard', icon: <OrderedListOutlined />, label: 'Ranking' },
+];
+
+const ADMIN_NAV = { key: '/admin', icon: <SettingOutlined />, label: 'Administración' };
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
-
-  const menuItems = [
-    { key: '/', icon: <HomeOutlined />, label: 'Inicio' },
-    { key: '/phase1', icon: <TrophyOutlined />, label: 'Fase 1' },
-    { key: '/leaderboard', icon: <OrderedListOutlined />, label: 'Ranking' },
-    ...(user?.role === 'ADMIN' ? [{ key: '/admin', icon: <SettingOutlined />, label: 'Admin' }] : []),
-  ];
 
   const handleLogout = () => {
     logout();
@@ -38,63 +39,234 @@ export default function AppLayout() {
     items: [
       { key: 'profile', icon: <UserOutlined />, label: 'Mi perfil', onClick: () => navigate('/profile') },
       { type: 'divider' as const },
-      { key: 'logout', icon: <LogoutOutlined />, label: 'Cerrar sesion', onClick: handleLogout, danger: true },
+      { key: 'logout', icon: <LogoutOutlined />, label: 'Cerrar sesión', onClick: handleLogout, danger: true },
     ],
   };
 
+  const initial = (user?.alias || user?.name || '?')[0].toUpperCase();
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        breakpoint="lg"
-        collapsedWidth={0}
-        onBreakpoint={(broken) => setCollapsed(broken)}
-        style={{ background: '#111111' }}
-      >
-        <div style={{ padding: '16px', textAlign: 'center' }}>
-          <Typography.Title level={4} style={{ color: '#fff', margin: 0, fontSize: collapsed ? 14 : 16 }}>
-            {collapsed ? 'Q' : 'Quiniela 2026'}
-          </Typography.Title>
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={({ key }) => navigate(key)}
-          style={{ background: '#111111', borderRight: 'none' }}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{
-          padding: '0 24px',
-          background: '#1A1A1A',
+    <div style={{ display: 'grid', gridTemplateColumns: collapsed ? '0px 1fr' : '248px 1fr', minHeight: '100vh', transition: 'grid-template-columns 0.25s ease' }}>
+      {/* ============ SIDEBAR ============ */}
+      <aside
+        style={{
+          background: 'var(--bg-1)',
+          borderRight: '1px solid var(--line)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+          flexDirection: 'column',
+          padding: collapsed ? '20px 0' : '20px 14px',
+          gap: 4,
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          overflow: collapsed ? 'hidden' : 'auto',
+          width: collapsed ? 0 : 248,
+          opacity: collapsed ? 0 : 1,
+          transition: 'width 0.25s ease, opacity 0.2s ease, padding 0.25s ease',
+        }}
+      >
+        {/* Brand */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '8px 8px 20px',
+          borderBottom: '1px solid var(--line)',
+          marginBottom: 12,
+        }}>
+          <div style={{
+            width: 32, height: 32,
+            borderRadius: 9,
+            background: 'linear-gradient(135deg, var(--gold) 0%, #8A7230 100%)',
+            display: 'grid', placeItems: 'center',
+            boxShadow: '0 4px 14px -4px rgba(212, 169, 60, 0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
+            position: 'relative',
+            flexShrink: 0,
+          }}>
+            {/* Inner diamond accent */}
+            <div style={{
+              position: 'absolute', inset: 4,
+              borderRadius: 6,
+              border: '1.5px solid rgba(255,255,255,0.4)',
+              borderBottomColor: 'transparent',
+              borderLeftColor: 'transparent',
+              transform: 'rotate(45deg)',
+            }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+            <strong style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', color: 'var(--fg-0)' }}>
+              Quiniela
+            </strong>
+            <span style={{ fontSize: 11, color: 'var(--fg-2)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>
+              2026 · MUNDIAL
+            </span>
+          </div>
+        </div>
+
+        {/* Nav: Principal */}
+        <div style={{
+          fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase',
+          letterSpacing: '0.12em', padding: '8px 10px 4px', fontWeight: 600,
+        }}>
+          Principal
+        </div>
+
+        {NAV_ITEMS.map((item) => {
+          const active = location.pathname === item.key;
+          return (
+            <div
+              key={item.key}
+              onClick={() => navigate(item.key)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 12px', borderRadius: 10,
+                color: active ? 'var(--fg-0)' : 'var(--fg-1)',
+                fontWeight: 500, fontSize: 14, cursor: 'pointer',
+                position: 'relative',
+                background: active
+                  ? 'linear-gradient(90deg, rgba(212, 169, 60, 0.12), transparent 70%)'
+                  : 'transparent',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = 'var(--bg-2)';
+                  e.currentTarget.style.color = 'var(--fg-0)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--fg-1)';
+                }
+              }}
+            >
+              {/* Active bar */}
+              {active && (
+                <div style={{
+                  position: 'absolute', left: 0, top: 8, bottom: 8,
+                  width: 3, background: 'var(--gold)',
+                  borderRadius: '0 3px 3px 0',
+                }} />
+              )}
+              <span style={{ fontSize: 18, opacity: 0.85, display: 'flex' }}>{item.icon}</span>
+              {item.label}
+            </div>
+          );
+        })}
+
+        {/* Nav: Sistema (admin) */}
+        {user?.role === 'ADMIN' && (
+          <>
+            <div style={{
+              fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase',
+              letterSpacing: '0.12em', padding: '8px 10px 4px', fontWeight: 600,
+              marginTop: 12,
+            }}>
+              Sistema
+            </div>
+            {(() => {
+              const active = location.pathname === ADMIN_NAV.key;
+              return (
+                <div
+                  onClick={() => navigate(ADMIN_NAV.key)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 12px', borderRadius: 10,
+                    color: active ? 'var(--fg-0)' : 'var(--fg-1)',
+                    fontWeight: 500, fontSize: 14, cursor: 'pointer',
+                    position: 'relative',
+                    background: active
+                      ? 'linear-gradient(90deg, rgba(212, 169, 60, 0.12), transparent 70%)'
+                      : 'transparent',
+                    transition: 'background 0.15s, color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = 'var(--bg-2)';
+                      e.currentTarget.style.color = 'var(--fg-0)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = 'var(--fg-1)';
+                    }
+                  }}
+                >
+                  {active && (
+                    <div style={{
+                      position: 'absolute', left: 0, top: 8, bottom: 8,
+                      width: 3, background: 'var(--gold)',
+                      borderRadius: '0 3px 3px 0',
+                    }} />
+                  )}
+                  <span style={{ fontSize: 18, opacity: 0.85, display: 'flex' }}>{ADMIN_NAV.icon}</span>
+                  {ADMIN_NAV.label}
+                </div>
+              );
+            })()}
+          </>
+        )}
+
+        {/* Footer */}
+        <Dropdown menu={userMenu} placement="topRight" trigger={['click']}>
+          <div style={{
+            marginTop: 'auto',
+            padding: 12,
+            borderTop: '1px solid var(--line)',
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: 'var(--bg-2)',
+            borderRadius: 12,
+            cursor: 'pointer',
+            transition: 'background 0.15s',
+          }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--gold), #8A7230)',
+              color: '#0a0d14',
+              display: 'grid', placeItems: 'center',
+              fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 14, flexShrink: 0,
+            }}>
+              {initial}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-0)' }}>
+                {user?.alias || user?.name}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--fg-2)' }}>
+                {user?.role === 'ADMIN' ? 'Administrador' : 'Jugador'}
+              </div>
+            </div>
+            <LogoutOutlined style={{ color: 'var(--fg-2)', fontSize: 14 }} />
+          </div>
+        </Dropdown>
+      </aside>
+
+      {/* ============ MAIN AREA ============ */}
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {/* Compact header (mobile toggle only) */}
+        <header style={{
+          padding: '0 24px',
+          height: 48,
+          background: 'var(--bg-1)',
+          borderBottom: '1px solid var(--line)',
+          display: 'flex', alignItems: 'center',
+          position: 'sticky', top: 0, zIndex: 10,
         }}>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
+            style={{ color: 'var(--fg-1)' }}
           />
-          <Dropdown menu={userMenu} placement="bottomRight">
-            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar style={{ backgroundColor: '#E63946' }}>
-                {(user?.alias || user?.name || '?')[0].toUpperCase()}
-              </Avatar>
-              <span style={{ fontWeight: 500, color: '#F1FAEE' }}>{user?.alias || user?.name}</span>
-            </div>
-          </Dropdown>
-        </Header>
-        <Content style={{ margin: '24px', minHeight: 280 }}>
+        </header>
+
+        <Content style={{ padding: '28px 40px 60px', maxWidth: 1400, width: '100%' }}>
           <Outlet />
         </Content>
-      </Layout>
+      </div>
+
       <ChangePasswordModal />
-    </Layout>
+    </div>
   );
 }
