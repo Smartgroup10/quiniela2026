@@ -39,8 +39,32 @@ model User {
   thirdPredictions     BestThirdPrediction[]
   specials             SpecialPrediction?
   bracketPredictions   BracketPrediction[]
+  leagues              LeagueUser[]
   matchPoints          Int      @default(0)
   createdAt            DateTime @default(now())
+}
+
+// ────────────────────────────────────────────────────────────────
+// Ligas
+// ────────────────────────────────────────────────────────────────
+
+model League {
+  id        String       @id @default(cuid())
+  name      String
+  code      String       @unique
+  createdAt DateTime     @default(now())
+  members   LeagueUser[]
+}
+
+model LeagueUser {
+  id       String   @id @default(cuid())
+  leagueId String
+  userId   String
+  joinedAt DateTime @default(now())
+  league   League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([leagueId, userId])
 }
 
 // ────────────────────────────────────────────────────────────────

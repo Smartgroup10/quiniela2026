@@ -14,6 +14,7 @@ import AdminGroupsTab from './admin/AdminGroupsTab';
 import AdminBonusTab from './admin/AdminBonusTab';
 import AdminScoringTab from './admin/AdminScoringTab';
 import AdminUsersTab from './admin/AdminUsersTab';
+import AdminLeaguesTab from './admin/AdminLeaguesTab';
 
 const TAB_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
@@ -22,6 +23,7 @@ const TAB_ITEMS = [
   { key: 'bonus',     label: 'Bonus',      icon: <StarOutlined /> },
   { key: 'scoring',   label: 'Puntuacion', icon: <SettingOutlined /> },
   { key: 'users',     label: 'Usuarios',   icon: <UserOutlined /> },
+  { key: 'leagues',   label: 'Ligas',      icon: <TeamOutlined /> },
 ];
 
 export default function Admin() {
@@ -43,6 +45,7 @@ export default function Admin() {
         <div style={{ display: activeTab === 'bonus'     ? 'block' : 'none' }}><AdminBonusTab /></div>
         <div style={{ display: activeTab === 'scoring'   ? 'block' : 'none' }}><AdminScoringTab /></div>
         <div style={{ display: activeTab === 'users'     ? 'block' : 'none' }}><AdminUsersTab /></div>
+        <div style={{ display: activeTab === 'leagues'   ? 'block' : 'none' }}><AdminLeaguesTab /></div>
       </div>
     </div>
   );

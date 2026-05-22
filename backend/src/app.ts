@@ -13,6 +13,7 @@ import { leaderboardRouter } from './modules/leaderboard/leaderboard.router.js';
 import { adminRouter } from './modules/admin/admin.router.js';
 import { footballApiRouter } from './modules/footballApi/footballApi.router.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.router.js';
+import { leaguesRouter } from './modules/leagues/leagues.router.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/matches', matchesRouter);
 app.use('/api/leaderboard', leaderboardRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/leagues', leaguesRouter);
 app.use('/api/admin/football', footballApiRouter);
 
 // Health check

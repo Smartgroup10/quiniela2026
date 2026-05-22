@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import prisma from '../../lib/prisma.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { adminOnly } from '../../middleware/adminOnly.js';
@@ -129,6 +130,78 @@ adminRouter.delete('/users/:id', async (req, res, next) => {
   try {
     await adminService.deleteUser(req.params.id, (req as any).user.id);
     res.json({ message: 'Usuario eliminado' });
+  } catch (err) { next(err); }
+});
+
+// --- League Management ---
+adminRouter.get('/leagues', async (_req, res, next) => {
+  try {
+    const leagues = await prisma.league.findMany({
+      include: { _count: { select: { members: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json(leagues.map((l) => ({
+      id: l.id, name: l.name, code: l.code,
+      memberCount: l._count.members, createdAt: l.createdAt,
+    })));
+  } catch (err) { next(err); }
+});
+
+adminRouter.post('/leagues', async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      res.status(400).json({ error: 'Nombre de liga requerido' }); return;
+    }
+    const code = crypto.randomBytes(4).toString('hex');
+    const league = await prisma.league.create({
+      data: { name: name.trim(), code },
+    });
+    res.status(201).json({ ...league, memberCount: 0 });
+  } catch (err) { next(err); }
+});
+
+adminRouter.delete('/leagues/:id', async (req, res, next) => {
+  try {
+    await prisma.league.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Liga eliminada' });
+  } catch (err) { next(err); }
+});
+
+adminRouter.get('/leagues/:id/members', async (req, res, next) => {
+  try {
+    const members = await prisma.leagueUser.findMany({
+      where: { leagueId: req.params.id },
+      include: {
+        user: {
+          select: { id: true, name: true, alias: true, avatarUrl: true, email: true, totalPoints: true },
+        },
+      },
+      orderBy: { joinedAt: 'asc' },
+    });
+    res.json(members.map((m) => ({ ...m.user, joinedAt: m.joinedAt })));
+  } catch (err) { next(err); }
+});
+
+adminRouter.post('/leagues/:id/members', async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) { res.status(400).json({ error: 'userId requerido' }); return; }
+    const existing = await prisma.leagueUser.findUnique({
+      where: { leagueId_userId: { leagueId: req.params.id, userId } },
+    });
+    if (existing) { res.status(400).json({ error: 'Usuario ya es miembro de esta liga' }); return; }
+    await prisma.leagueUser.create({ data: { leagueId: req.params.id, userId } });
+    res.status(201).json({ message: 'Usuario agregado a la liga' });
+  } catch (err) { next(err); }
+});
+
+adminRouter.delete('/leagues/:id/members/:userId', async (req, res, next) => {
+  try {
+    await prisma.leagueUser.delete({
+      where: { leagueId_userId: { leagueId: req.params.id, userId: req.params.userId } },
+    });
+    res.json({ message: 'Usuario removido de la liga' });
   } catch (err) { next(err); }
 });
 

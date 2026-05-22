@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { message } from 'antd';
 import { useAuthStore } from '../stores/authStore';
 import { authApi } from '../api/auth';
+import { leaguesApi, type League } from '../api/leagues';
 import AvatarPicker from '../components/AvatarPicker';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { Link } from 'react-router-dom';
@@ -28,6 +29,13 @@ export default function Profile() {
   const { isMobile } = useBreakpoint();
   const [saving, setSaving] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatarUrl || '');
+  const [myLeagues, setMyLeagues] = useState<League[]>([]);
+  const [joinCode, setJoinCode] = useState('');
+  const [joining, setJoining] = useState(false);
+
+  useEffect(() => {
+    leaguesApi.getMyLeagues().then(({ data }) => setMyLeagues(data)).catch(() => {});
+  }, []);
 
   if (!user) return null;
 
@@ -160,6 +168,126 @@ export default function Profile() {
             </button>
           )}
         </div>
+      </div>
+
+      {/* ============ MIS LIGAS ============ */}
+      <div style={{ marginTop: 28, maxWidth: 900 }}>
+        <h2 style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: 20, fontWeight: 600, color: V.fg0, margin: '0 0 16px',
+        }}>Mis Ligas</h2>
+
+        {/* Join by code */}
+        <div style={{
+          background: V.bg1, border: `1px solid ${V.line}`,
+          borderRadius: 14, padding: 20, marginBottom: 16,
+          display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
+        }}>
+          <input
+            type="text"
+            placeholder="Codigo de invitacion"
+            value={joinCode}
+            onChange={(e) => setJoinCode(e.target.value)}
+            style={{
+              flex: 1, minWidth: 180,
+              padding: '10px 14px', borderRadius: 10,
+              background: V.bg2, border: `1px solid ${V.line}`,
+              color: V.fg0, fontSize: 14,
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: '0.05em',
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={async () => {
+              if (!joinCode.trim()) return;
+              setJoining(true);
+              try {
+                const { data } = await leaguesApi.joinLeague(joinCode.trim());
+                message.success(data.message);
+                setJoinCode('');
+                const { data: updated } = await leaguesApi.getMyLeagues();
+                setMyLeagues(updated);
+              } catch (err: any) {
+                message.error(err.response?.data?.error || 'Error al unirse');
+              } finally {
+                setJoining(false);
+              }
+            }}
+            disabled={joining || !joinCode.trim()}
+            style={{
+              padding: '10px 20px', borderRadius: 10,
+              fontWeight: 600, fontSize: 14,
+              background: V.gold, color: '#0a0d14',
+              border: 'none', cursor: joining ? 'wait' : 'pointer',
+              opacity: joining || !joinCode.trim() ? 0.5 : 1,
+              transition: 'opacity 0.15s',
+            }}
+          >
+            {joining ? 'Uniendose...' : 'Unirse'}
+          </button>
+        </div>
+
+        {/* League list */}
+        {myLeagues.length === 0 ? (
+          <div style={{
+            background: V.bg1, border: `1px solid ${V.line}`,
+            borderRadius: 14, padding: 32, textAlign: 'center',
+            color: V.fg2, fontSize: 14,
+          }}>
+            No perteneces a ninguna liga. Pide un codigo de invitacion al administrador.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {myLeagues.map((league) => (
+              <div key={league.id} style={{
+                background: V.bg1, border: `1px solid ${V.line}`,
+                borderRadius: 14, padding: '16px 20px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: 12,
+              }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: V.fg0 }}>{league.name}</div>
+                  <div style={{
+                    fontSize: 12, color: V.fg2, marginTop: 2,
+                    fontFamily: "'JetBrains Mono', monospace",
+                  }}>
+                    {league.memberCount} miembros
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await leaguesApi.leaveLeague(league.id);
+                      message.success('Has salido de la liga');
+                      setMyLeagues((prev) => prev.filter((l) => l.id !== league.id));
+                    } catch (err: any) {
+                      message.error(err.response?.data?.error || 'Error al salir');
+                    }
+                  }}
+                  style={{
+                    padding: '6px 14px', borderRadius: 8,
+                    fontWeight: 600, fontSize: 12,
+                    background: 'transparent',
+                    border: `1px solid ${V.line}`,
+                    color: V.fg2, cursor: 'pointer',
+                    transition: 'color 0.15s, border-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#E26A5E';
+                    e.currentTarget.style.borderColor = '#E26A5E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = V.fg2;
+                    e.currentTarget.style.borderColor = V.line;
+                  }}
+                >
+                  Salir
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
