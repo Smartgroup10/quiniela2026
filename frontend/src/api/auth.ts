@@ -26,11 +26,13 @@ export interface AuthResponse {
 }
 
 export const authApi = {
-  register: (data: { email: string; password: string; name: string; alias?: string; favoriteTeamId?: string }) =>
+  register: (data: { email: string; password: string; name: string; alias?: string; favoriteTeamId?: string; avatarUrl?: string }) =>
     api.post<AuthResponse>('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post<AuthResponse>('/auth/login', data),
   me: () => api.get<User>('/auth/me'),
-  changePassword: (data: { currentPassword: string; newPassword: string }) =>
-    api.post('/auth/change-password', data),
+  changePassword: (data: { currentPassword: string; newPassword: string; avatarUrl?: string }) =>
+    api.post<{ message: string; user: User }>('/auth/change-password', data),
+  updateProfile: (data: { avatarUrl?: string; alias?: string }) =>
+    api.put<User>('/auth/profile', data),
 };

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Ninja futbolista -->
+  <!-- Head -->
+  <circle cx="32" cy="16" r="12" fill="#1a1a2e" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Headband -->
+  <rect x="20" y="10" width="24" height="5" rx="1" fill="#E74C3C"/>
+  <!-- Headband tails flowing -->
+  <path d="M44 12 Q50 10 54 14 Q56 16 52 18" fill="#E74C3C" stroke="#C0392B" stroke-width="0.5"/>
+  <path d="M44 14 Q48 14 52 18 Q54 22 50 22" fill="#C0392B" stroke="#C0392B" stroke-width="0.5"/>
+  <!-- Mask (covers lower face) -->
+  <path d="M20 16 L20 24 Q20 28 32 28 Q44 28 44 24 L44 16" fill="#2C3E50"/>
+  <!-- Eyes slit -->
+  <rect x="20" y="14" width="24" height="6" rx="1" fill="#1a1a2e"/>
+  <!-- Ninja eyes (narrow, intense) -->
+  <ellipse cx="26" cy="17" rx="4" ry="2" fill="white"/>
+  <ellipse cx="38" cy="17" rx="4" ry="2" fill="white"/>
+  <ellipse cx="27" cy="17" rx="2" ry="1.5" fill="#E74C3C"/>
+  <ellipse cx="39" cy="17" rx="2" ry="1.5" fill="#E74C3C"/>
+  <ellipse cx="27" cy="17" rx="1" ry="1" fill="#1a1a2e"/>
+  <ellipse cx="39" cy="17" rx="1" ry="1" fill="#1a1a2e"/>
+  <!-- Dark jersey -->
+  <rect x="22" y="28" width="20" height="16" rx="3" fill="#2C3E50" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Ninja star on jersey -->
+  <polygon points="32,32 34,36 38,36 35,39 36,43 32,40 28,43 29,39 26,36 30,36" fill="#C0C0C0" stroke="#1a1a2e" stroke-width="0.8"/>
+  <!-- Arms in kicking pose -->
+  <rect x="10" y="30" width="12" height="4" rx="2" fill="#2C3E50" stroke="#1a1a2e" stroke-width="1.5"/>
+  <rect x="42" y="28" width="12" height="4" rx="2" fill="#2C3E50" stroke="#1a1a2e" stroke-width="1.5" transform="rotate(-20 48 30)"/>
+  <!-- Ninja gloves -->
+  <rect x="6" y="30" width="6" height="4" rx="2" fill="#1a1a2e"/>
+  <rect x="52" y="26" width="6" height="4" rx="2" fill="#1a1a2e" transform="rotate(-20 55 28)"/>
+  <!-- Kicking leg extended -->
+  <rect x="40" y="44" width="5" height="16" rx="2" fill="#1a1a2e" stroke="#333" stroke-width="1" transform="rotate(-45 42 52)"/>
+  <!-- Standing leg -->
+  <rect x="24" y="44" width="5" height="12" rx="2" fill="#1a1a2e" stroke="#333" stroke-width="1"/>
+  <!-- Ninja boots (tabi) -->
+  <path d="M22 56 L30 56 L28 60 L22 60 Z" fill="#333" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Kicking boot -->
+  <rect x="54" y="42" width="8" height="4" rx="2" fill="#333" stroke="#1a1a2e" stroke-width="1" transform="rotate(-45 58 44)"/>
+  <!-- Speed/motion lines -->
+  <line x1="58" y1="36" x2="64" y2="34" stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="56" y1="40" x2="62" y2="40" stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="58" y1="44" x2="64" y2="46" stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <!-- Smoke puff at feet -->
+  <circle cx="26" cy="58" r="3" fill="#666" opacity="0.3"/>
+  <circle cx="20" cy="60" r="4" fill="#666" opacity="0.2"/>
+  <circle cx="32" cy="60" r="3" fill="#666" opacity="0.2"/>
+</svg>

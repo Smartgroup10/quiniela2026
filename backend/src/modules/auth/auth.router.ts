@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerSchema, loginSchema, changePasswordSchema } from './auth.schemas.js';
+import { registerSchema, loginSchema, changePasswordSchema, updateProfileSchema } from './auth.schemas.js';
 import * as authService from './auth.service.js';
 import { requireAuth } from '../../middleware/auth.js';
 
@@ -24,8 +24,16 @@ authRouter.post('/login', async (req, res, next) => {
 authRouter.post('/change-password', requireAuth, async (req, res, next) => {
   try {
     const data = changePasswordSchema.parse(req.body);
-    const result = await authService.changePassword(req.user!.sub, data.currentPassword, data.newPassword);
+    const result = await authService.changePassword(req.user!.sub, data.currentPassword, data.newPassword, data.avatarUrl);
     res.json(result);
+  } catch (err) { next(err); }
+});
+
+authRouter.put('/profile', requireAuth, async (req, res, next) => {
+  try {
+    const data = updateProfileSchema.parse(req.body);
+    const user = await authService.updateProfile(req.user!.sub, data);
+    res.json(user);
   } catch (err) { next(err); }
 });
 

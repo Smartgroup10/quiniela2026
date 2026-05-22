@@ -276,14 +276,20 @@ export default function Leaderboard() {
                     display: 'grid', placeItems: 'center',
                     fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
                     fontSize: isFirst ? 36 : 26,
-                    color: avatarTextColor(initial),
-                    background: avatarGrad(initial),
+                    color: entry.avatarUrl ? undefined : avatarTextColor(initial),
+                    background: entry.avatarUrl ? V.bg2 : avatarGrad(initial),
                     border: `3px solid ${V.bg1}`,
                     boxShadow: isFirst
                       ? `0 0 0 4px ${V.gold}, 0 0 30px rgba(212,169,60,0.4), 0 10px 30px rgba(0,0,0,0.5)`
                       : 'none',
+                    overflow: 'hidden',
                   }}>
-                    {initial}
+                    {entry.avatarUrl ? (
+                      <img src={entry.avatarUrl} alt="" style={{
+                        width: isFirst ? 68 : 52, height: isFirst ? 68 : 52,
+                        objectFit: 'contain',
+                      }} />
+                    ) : initial}
                   </div>
 
                   {/* Name */}
@@ -431,13 +437,23 @@ export default function Leaderboard() {
               // Player
               <div key={`${entry.id}-player`} style={{ ...cellBase, textAlign: 'left', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    display: 'grid', placeItems: 'center',
-                    fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: 14, color: avatarTextColor(initial),
-                    background: avatarGrad(initial), flexShrink: 0,
-                  }}>{initial}</div>
+                  {entry.avatarUrl ? (
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%',
+                      display: 'grid', placeItems: 'center',
+                      background: V.bg2, flexShrink: 0, overflow: 'hidden',
+                    }}>
+                      <img src={entry.avatarUrl} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%',
+                      display: 'grid', placeItems: 'center',
+                      fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: 14, color: avatarTextColor(initial),
+                      background: avatarGrad(initial), flexShrink: 0,
+                    }}>{initial}</div>
+                  )}
                   <div>
                     <div style={{
                       fontWeight: 600, color: V.fg0, fontSize: 14,
@@ -532,13 +548,23 @@ function DuelCard({ label, entry, rank, gap, isAbove }: {
         {isAbove ? '▲' : '▼'} {label}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{
-          width: 48, height: 48, borderRadius: '50%',
-          display: 'grid', placeItems: 'center',
-          fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: 18, color: avatarTextColor(initial),
-          background: avatarGrad(initial), flexShrink: 0,
-        }}>{initial}</div>
+        {entry.avatarUrl ? (
+          <div style={{
+            width: 48, height: 48, borderRadius: '50%',
+            display: 'grid', placeItems: 'center',
+            background: V.bg2, flexShrink: 0, overflow: 'hidden',
+          }}>
+            <img src={entry.avatarUrl} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+          </div>
+        ) : (
+          <div style={{
+            width: 48, height: 48, borderRadius: '50%',
+            display: 'grid', placeItems: 'center',
+            fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 18, color: avatarTextColor(initial),
+            background: avatarGrad(initial), flexShrink: 0,
+          }}>{initial}</div>
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontWeight: 700, fontSize: 15, marginBottom: 4, color: V.fg0,

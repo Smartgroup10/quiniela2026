@@ -693,13 +693,23 @@ function RankRow({ entry, rank, isMe }: { entry: LeaderboardEntry; rank: number;
         fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700,
         fontSize: 18, color: posColor, textAlign: 'center',
       }}>{rank}</div>
-      <div style={{
-        width: 32, height: 32, borderRadius: '50%',
-        background: avatarGradient(initial),
-        display: 'grid', placeItems: 'center',
-        fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
-        fontSize: 13, color: 'white',
-      }}>{initial}</div>
+      {entry.avatarUrl ? (
+        <div style={{
+          width: 32, height: 32, borderRadius: '50%',
+          background: V.bg2, display: 'grid', placeItems: 'center',
+          overflow: 'hidden',
+        }}>
+          <img src={entry.avatarUrl} alt="" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+        </div>
+      ) : (
+        <div style={{
+          width: 32, height: 32, borderRadius: '50%',
+          background: avatarGradient(initial),
+          display: 'grid', placeItems: 'center',
+          fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: 13, color: 'white',
+        }}>{initial}</div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, fontSize: 14, color: V.fg0 }}>
         {entry.alias || entry.name}
         {isMe && (

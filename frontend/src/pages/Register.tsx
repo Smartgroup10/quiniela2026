@@ -5,10 +5,12 @@ import { MailOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { authApi } from '../api/auth';
 import { teamsApi, type Team } from '../api/teams';
 import { useAuthStore } from '../stores/authStore';
+import AvatarPicker from '../components/AvatarPicker';
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
@@ -19,7 +21,7 @@ export default function Register() {
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
-      const { data } = await authApi.register(values);
+      const { data } = await authApi.register({ ...values, avatarUrl });
       login(data.token, data.user);
       message.success('Cuenta creada. Bienvenido!');
       navigate('/');
@@ -38,7 +40,7 @@ export default function Register() {
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)',
     }}>
-      <Card style={{ width: 440, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.5)', background: '#1A1A1A', border: '1px solid #2D2D2D' }}>
+      <Card style={{ width: 540, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.5)', background: '#1A1A1A', border: '1px solid #2D2D2D' }}>
         <Space direction="vertical" size="large" style={{ width: '100%', textAlign: 'center' }}>
           <div>
             <Typography.Title level={2} style={{ margin: 0, color: '#F1FAEE' }}>
@@ -71,6 +73,9 @@ export default function Register() {
                 }))}
               />
             </Form.Item>
+            <div style={{ marginBottom: 20 }}>
+              <AvatarPicker value={avatarUrl} onChange={setAvatarUrl} />
+            </div>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={loading} block size="large">
                 Registrarme

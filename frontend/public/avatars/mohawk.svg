@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Jugador con mohawk colorido -->
+  <!-- Head -->
+  <circle cx="32" cy="22" r="12" fill="#8D6E63" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Colorful mohawk -->
+  <rect x="29" y="2" width="6" height="8" rx="2" fill="#E74C3C"/>
+  <rect x="29" y="6" width="6" height="6" rx="2" fill="#FF6B35"/>
+  <rect x="29" y="10" width="6" height="5" rx="2" fill="#FFD700"/>
+  <rect x="28" y="14" width="8" height="4" rx="2" fill="#2ECC40"/>
+  <!-- Mohawk spikes -->
+  <path d="M29 2 L32 0 L35 2" fill="#9B59B6"/>
+  <path d="M28 6 L26 4 L29 6" fill="#E74C3C"/>
+  <path d="M35 6 L38 4 L35 6" fill="#E74C3C"/>
+  <!-- Shaved sides -->
+  <rect x="20" y="16" width="4" height="8" rx="1" fill="#5D4037" opacity="0.5"/>
+  <rect x="40" y="16" width="4" height="8" rx="1" fill="#5D4037" opacity="0.5"/>
+  <!-- Determined eyebrows -->
+  <line x1="25" y1="17" x2="29" y2="18" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="35" y1="18" x2="39" y2="17" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Fierce eyes -->
+  <circle cx="28" cy="21" r="2.5" fill="white" stroke="#1a1a2e" stroke-width="1.5"/>
+  <circle cx="36" cy="21" r="2.5" fill="white" stroke="#1a1a2e" stroke-width="1.5"/>
+  <circle cx="28.5" cy="20.5" r="1.5" fill="#1a1a2e"/>
+  <circle cx="36.5" cy="20.5" r="1.5" fill="#1a1a2e"/>
+  <!-- War paint under eyes -->
+  <rect x="24" y="23" width="6" height="2" rx="1" fill="#1a1a2e" opacity="0.6"/>
+  <rect x="34" y="23" width="6" height="2" rx="1" fill="#1a1a2e" opacity="0.6"/>
+  <!-- Determined mouth -->
+  <path d="M28 28 L32 26 L36 28" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Neck -->
+  <rect x="28" y="33" width="8" height="3" fill="#8D6E63"/>
+  <!-- Jersey -->
+  <rect x="18" y="36" width="28" height="18" rx="3" fill="#2ECC40" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Jersey stripes -->
+  <rect x="18" y="40" width="28" height="3" fill="#27AE60"/>
+  <rect x="18" y="48" width="28" height="3" fill="#27AE60"/>
+  <!-- Number -->
+  <text x="32" y="48" text-anchor="middle" font-family="monospace" font-size="9" font-weight="bold" fill="white">11</text>
+  <!-- Muscular arms -->
+  <rect x="8" y="38" width="10" height="6" rx="3" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5"/>
+  <rect x="46" y="38" width="10" height="6" rx="3" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Fists clenched -->
+  <rect x="4" y="38" width="6" height="5" rx="2" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5"/>
+  <rect x="54" y="38" width="6" height="5" rx="2" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Shorts -->
+  <rect x="20" y="54" width="10" height="5" rx="1" fill="white" stroke="#1a1a2e" stroke-width="1"/>
+  <rect x="34" y="54" width="10" height="5" rx="1" fill="white" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Boots -->
+  <rect x="18" y="59" width="12" height="4" rx="2" fill="#1a1a2e"/>
+  <rect x="34" y="59" width="12" height="4" rx="2" fill="#1a1a2e"/>
+</svg>

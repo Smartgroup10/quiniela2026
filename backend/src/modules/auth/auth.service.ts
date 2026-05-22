@@ -18,6 +18,7 @@ export async function register(data: {
   name: string;
   alias?: string;
   favoriteTeamId?: string;
+  avatarUrl?: string;
 }) {
   const existing = await prisma.user.findUnique({ where: { email: data.email } });
   if (existing) throw new ConflictError('Este email ya está registrado');
@@ -43,6 +44,7 @@ export async function register(data: {
       password: hashed,
       name: data.name,
       alias: data.alias,
+      avatarUrl: data.avatarUrl,
       favoriteTeamId: data.favoriteTeamId,
       phase1Available,
       phase2Available,
@@ -66,7 +68,7 @@ export async function login(email: string, password: string) {
   return { token, user: safeUser };
 }
 
-export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
+export async function changePassword(userId: string, currentPassword: string, newPassword: string, avatarUrl?: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new UnauthorizedError('Usuario no encontrado');
 
@@ -74,12 +76,41 @@ export async function changePassword(userId: string, currentPassword: string, ne
   if (!valid) throw new UnauthorizedError('Contrasena actual incorrecta');
 
   const hashed = await bcrypt.hash(newPassword, 10);
-  await prisma.user.update({
+  const updateData: Record<string, unknown> = { password: hashed, mustChangePassword: false };
+  if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+
+  const updated = await prisma.user.update({
     where: { id: userId },
-    data: { password: hashed, mustChangePassword: false },
+    data: updateData,
+    select: {
+      id: true, email: true, name: true, alias: true, avatarUrl: true,
+      favoriteTeamId: true, role: true, registeredAt: true,
+      phase1Available: true, phase2Available: true, mustChangePassword: true,
+      matchPoints: true, groupPoints: true, bestThirdPoints: true, bonusPhase1Points: true,
+      knockoutPoints: true, bonusPhase2Points: true, totalPoints: true,
+    },
   });
 
-  return { message: 'Contrasena actualizada correctamente' };
+  return { message: 'Contrasena actualizada correctamente', user: updated };
+}
+
+export async function updateProfile(userId: string, data: { avatarUrl?: string; alias?: string }) {
+  const updateData: Record<string, unknown> = {};
+  if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
+  if (data.alias !== undefined) updateData.alias = data.alias;
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: {
+      id: true, email: true, name: true, alias: true, avatarUrl: true,
+      favoriteTeamId: true, role: true, registeredAt: true,
+      phase1Available: true, phase2Available: true, mustChangePassword: true,
+      matchPoints: true, groupPoints: true, bestThirdPoints: true, bonusPhase1Points: true,
+      knockoutPoints: true, bonusPhase2Points: true, totalPoints: true,
+    },
+  });
+  return user;
 }
 
 export async function me(userId: string) {

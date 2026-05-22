@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Bota de futbol con alas -->
+  <!-- Boot body -->
+  <path d="M8 38 L14 24 Q18 18 26 18 L40 18 Q44 18 46 22 L48 28 L56 32 Q60 34 58 38 L56 40 L8 40 Z" fill="#E74C3C" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Boot sole -->
+  <rect x="6" y="40" width="54" height="6" rx="2" fill="#1a1a2e" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Sole studs -->
+  <rect x="10" y="46" width="4" height="4" rx="1" fill="#C0C0C0"/>
+  <rect x="20" y="46" width="4" height="4" rx="1" fill="#C0C0C0"/>
+  <rect x="30" y="46" width="4" height="4" rx="1" fill="#C0C0C0"/>
+  <rect x="40" y="46" width="4" height="4" rx="1" fill="#C0C0C0"/>
+  <rect x="50" y="46" width="4" height="4" rx="1" fill="#C0C0C0"/>
+  <!-- Boot tongue -->
+  <path d="M22 18 L20 10 Q22 6 28 8 L30 18" fill="#FF6B35" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Laces -->
+  <line x1="22" y1="18" x2="30" y2="18" stroke="#FFD700" stroke-width="1.5"/>
+  <line x1="21" y1="15" x2="29" y2="15" stroke="#FFD700" stroke-width="1.5"/>
+  <line x1="21" y1="12" x2="28" y2="12" stroke="#FFD700" stroke-width="1.5"/>
+  <!-- Nike-style swoosh -->
+  <path d="M14 34 Q30 28 50 30" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Left wing -->
+  <path d="M16 24 L6 12 Q4 8 8 10 L14 16" fill="#FFD700" stroke="#1a1a2e" stroke-width="1.5"/>
+  <path d="M14 20 L2 14 Q0 10 4 12 L12 16" fill="#FFA500" stroke="#1a1a2e" stroke-width="1"/>
+  <path d="M18 26 L10 16 Q8 12 12 14 L16 20" fill="#FFEC8B" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Right wing -->
+  <path d="M46 22 L54 8 Q56 4 56 8 L50 18" fill="#FFD700" stroke="#1a1a2e" stroke-width="1.5"/>
+  <path d="M48 24 L58 12 Q60 8 58 12 L52 20" fill="#FFA500" stroke="#1a1a2e" stroke-width="1"/>
+  <path d="M44 20 L50 6 Q52 2 52 6 L48 16" fill="#FFEC8B" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Speed lines -->
+  <line x1="60" y1="36" x2="64" y2="36" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="58" y1="32" x2="64" y2="32" stroke="#FFD700" stroke-width="1" stroke-linecap="round"/>
+</svg>

@@ -219,16 +219,27 @@ export default function AppLayout() {
             cursor: 'pointer',
             transition: 'background 0.15s',
           }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--gold), #8A7230)',
-              color: '#0a0d14',
-              display: 'grid', placeItems: 'center',
-              fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: 14, flexShrink: 0,
-            }}>
-              {initial}
-            </div>
+            {user?.avatarUrl ? (
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'var(--bg-2)',
+                display: 'grid', placeItems: 'center',
+                flexShrink: 0, overflow: 'hidden',
+              }}>
+                <img src={user.avatarUrl} alt="avatar" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+              </div>
+            ) : (
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--gold), #8A7230)',
+                color: '#0a0d14',
+                display: 'grid', placeItems: 'center',
+                fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 14, flexShrink: 0,
+              }}>
+                {initial}
+              </div>
+            )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-0)' }}>
                 {user?.alias || user?.name}

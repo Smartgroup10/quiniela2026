@@ -3,9 +3,11 @@ import { Modal, Form, Input, Button, message, Typography } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
+import AvatarPicker from './AvatarPicker';
 
 export default function ChangePasswordModal() {
   const [loading, setLoading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [form] = Form.useForm();
   const { user, setUser } = useAuthStore();
 
@@ -14,9 +16,13 @@ export default function ChangePasswordModal() {
   const onFinish = async (values: { currentPassword: string; newPassword: string }) => {
     setLoading(true);
     try {
-      await authApi.changePassword(values);
+      const { data } = await authApi.changePassword({ ...values, avatarUrl });
       message.success('Contrasena actualizada correctamente');
-      if (user) setUser({ ...user, mustChangePassword: false });
+      if (data.user) {
+        setUser(data.user);
+      } else if (user) {
+        setUser({ ...user, mustChangePassword: false, ...(avatarUrl ? { avatarUrl } : {}) });
+      }
       form.resetFields();
     } catch (err: any) {
       message.error(err.response?.data?.error || 'Error al cambiar contrasena');
@@ -33,10 +39,14 @@ export default function ChangePasswordModal() {
       maskClosable={false}
       keyboard={false}
       footer={null}
+      width={560}
     >
-      <Typography.Paragraph type="secondary" style={{ marginBottom: 24 }}>
+      <Typography.Paragraph type="secondary" style={{ marginBottom: 16 }}>
         Tu cuenta fue creada con una contrasena temporal. Debes cambiarla antes de continuar.
       </Typography.Paragraph>
+      <div style={{ marginBottom: 20 }}>
+        <AvatarPicker value={avatarUrl} onChange={setAvatarUrl} />
+      </div>
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
           name="currentPassword"

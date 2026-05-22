@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Balon con cara sonriente -->
+  <!-- Ball body -->
+  <circle cx="32" cy="32" r="26" fill="white" stroke="#1a1a2e" stroke-width="2.5"/>
+  <!-- Pentagon pattern -->
+  <polygon points="32,10 38,16 36,24 28,24 26,16" fill="#1a1a2e"/>
+  <polygon points="12,26 18,20 24,24 22,32 14,32" fill="#1a1a2e"/>
+  <polygon points="52,26 46,20 40,24 42,32 50,32" fill="#1a1a2e"/>
+  <polygon points="18,46 22,38 28,40 28,48 22,50" fill="#1a1a2e"/>
+  <polygon points="46,46 42,38 36,40 36,48 42,50" fill="#1a1a2e"/>
+  <!-- Happy face over the pattern -->
+  <!-- Eyes -->
+  <circle cx="26" cy="28" r="3.5" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+  <circle cx="38" cy="28" r="3.5" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+  <circle cx="27" cy="27" r="2" fill="#1a1a2e"/>
+  <circle cx="39" cy="27" r="2" fill="#1a1a2e"/>
+  <!-- Eye shine -->
+  <circle cx="28" cy="26" r="0.8" fill="white"/>
+  <circle cx="40" cy="26" r="0.8" fill="white"/>
+  <!-- Big smile -->
+  <path d="M24 35 Q32 44 40 35" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Rosy cheeks -->
+  <circle cx="21" cy="34" r="3" fill="#FF6B6B" opacity="0.5"/>
+  <circle cx="43" cy="34" r="3" fill="#FF6B6B" opacity="0.5"/>
+  <!-- Tongue -->
+  <ellipse cx="32" cy="39" rx="3" ry="2" fill="#E74C3C"/>
+  <!-- Bouncing motion lines -->
+  <line x1="14" y1="58" x2="20" y2="58" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="10" y1="60" x2="24" y2="60" stroke="#aaa" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+  <line x1="44" y1="58" x2="50" y2="58" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="40" y1="60" x2="54" y2="60" stroke="#aaa" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Delantero celebrando gol - sliding celebration -->
+  <!-- Head -->
+  <circle cx="32" cy="14" r="10" fill="#8D6E63" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Hair -->
+  <path d="M22 12 Q24 4 32 6 Q40 4 42 12" fill="#1a1a2e"/>
+  <!-- Happy eyes (closed, celebrating) -->
+  <path d="M27 13 Q29 11 31 13" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M33 13 Q35 11 37 13" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Open mouth celebrating -->
+  <circle cx="32" cy="19" r="3" fill="#1a1a2e"/>
+  <path d="M30 18 Q32 22 34 18" fill="#E74C3C"/>
+  <!-- Arms up celebrating -->
+  <rect x="10" y="20" width="4" height="14" rx="2" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5" transform="rotate(-30 12 27)"/>
+  <rect x="48" y="18" width="4" height="14" rx="2" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5" transform="rotate(30 50 25)"/>
+  <!-- Hands -->
+  <circle cx="8" cy="16" r="3" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5"/>
+  <circle cx="56" cy="14" r="3" fill="#8D6E63" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- White jersey body -->
+  <rect x="22" y="24" width="20" height="16" rx="3" fill="white" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Jersey number -->
+  <text x="32" y="36" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#1a1a2e">9</text>
+  <!-- Sliding legs -->
+  <rect x="18" y="40" width="28" height="6" rx="2" fill="white" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Boots -->
+  <rect x="14" y="44" width="10" height="5" rx="2" fill="#1a1a2e" stroke="#1a1a2e" stroke-width="1"/>
+  <rect x="40" y="44" width="10" height="5" rx="2" fill="#1a1a2e" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Grass slide marks -->
+  <rect x="8" y="52" width="48" height="3" rx="1" fill="#27AE60" opacity="0.6"/>
+  <rect x="12" y="56" width="40" height="2" rx="1" fill="#2ECC40" opacity="0.4"/>
+  <!-- Motion lines -->
+  <line x1="4" y1="30" x2="10" y2="30" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+  <line x1="2" y1="35" x2="8" y2="35" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+  <line x1="54" y1="28" x2="60" y2="28" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+  <line x1="56" y1="33" x2="62" y2="33" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+</svg>

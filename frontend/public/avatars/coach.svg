@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Entrenador gritando -->
+  <!-- Head -->
+  <circle cx="32" cy="14" r="10" fill="#FFDAB9" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Slicked back hair -->
+  <path d="M22 12 Q24 4 32 5 Q40 4 42 12 L42 8 Q40 2 32 3 Q24 2 22 8 Z" fill="#555"/>
+  <!-- Angry eyebrows -->
+  <line x1="24" y1="10" x2="29" y2="12" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="35" y1="12" x2="40" y2="10" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Intense eyes -->
+  <circle cx="27" cy="14" r="2" fill="#1a1a2e"/>
+  <circle cx="37" cy="14" r="2" fill="#1a1a2e"/>
+  <!-- Wide open yelling mouth -->
+  <ellipse cx="32" cy="21" rx="6" ry="4" fill="#1a1a2e" stroke="#1a1a2e" stroke-width="1"/>
+  <path d="M27 20 Q32 18 37 20" fill="white"/>
+  <ellipse cx="32" cy="23" rx="4" ry="2" fill="#C0392B"/>
+  <!-- Veins on forehead -->
+  <path d="M28 8 L30 10" stroke="#E74C3C" stroke-width="0.8" opacity="0.6"/>
+  <!-- Suit jacket -->
+  <rect x="20" y="24" width="24" height="22" rx="3" fill="#2C3E50" stroke="#1a1a2e" stroke-width="2"/>
+  <!-- Suit lapels -->
+  <path d="M28 24 L32 34 L26 34 Z" fill="#1a1a2e" opacity="0.3"/>
+  <path d="M36 24 L32 34 L38 34 Z" fill="#1a1a2e" opacity="0.3"/>
+  <!-- White shirt underneath -->
+  <rect x="29" y="24" width="6" height="14" fill="white"/>
+  <!-- Tie -->
+  <polygon points="32,26 34,30 32,42 30,30" fill="#E74C3C"/>
+  <!-- Left arm pointing/gesturing -->
+  <rect x="8" y="28" width="12" height="5" rx="2" fill="#2C3E50" stroke="#1a1a2e" stroke-width="1.5"/>
+  <circle cx="7" cy="30" r="3" fill="#FFDAB9" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Pointing finger -->
+  <rect x="2" y="29" width="5" height="2.5" rx="1" fill="#FFDAB9" stroke="#1a1a2e" stroke-width="0.8"/>
+  <!-- Right arm holding clipboard -->
+  <rect x="44" y="30" width="10" height="5" rx="2" fill="#2C3E50" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Clipboard -->
+  <rect x="48" y="26" width="12" height="16" rx="1" fill="#8B4513" stroke="#1a1a2e" stroke-width="1.5"/>
+  <rect x="50" y="28" width="8" height="12" rx="0.5" fill="white"/>
+  <!-- Clipboard lines -->
+  <line x1="51" y1="31" x2="57" y2="31" stroke="#aaa" stroke-width="1"/>
+  <line x1="51" y1="34" x2="57" y2="34" stroke="#aaa" stroke-width="1"/>
+  <line x1="51" y1="37" x2="55" y2="37" stroke="#aaa" stroke-width="1"/>
+  <!-- Clipboard clip -->
+  <rect x="52" y="25" width="6" height="3" rx="1" fill="#C0C0C0" stroke="#1a1a2e" stroke-width="1"/>
+  <!-- Pants -->
+  <rect x="22" y="46" width="9" height="8" rx="1" fill="#1a1a2e"/>
+  <rect x="33" y="46" width="9" height="8" rx="1" fill="#1a1a2e"/>
+  <!-- Shoes -->
+  <rect x="20" y="54" width="12" height="5" rx="2" fill="#2C3E50" stroke="#1a1a2e" stroke-width="1.5"/>
+  <rect x="32" y="54" width="12" height="5" rx="2" fill="#2C3E50" stroke="#1a1a2e" stroke-width="1.5"/>
+  <!-- Yelling motion lines -->
+  <line x1="12" y1="18" x2="8" y2="16" stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="12" y1="22" x2="6" y2="22" stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="52" y1="18" x2="56" y2="16" stroke="#E74C3C" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+</svg>
