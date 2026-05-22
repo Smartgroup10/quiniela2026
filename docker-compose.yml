@@ -12,6 +12,8 @@ services:
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
+      - FOOTBALL_API_KEY=${FOOTBALL_API_KEY}
+      - FOOTBALL_API_ENABLED=${FOOTBALL_API_ENABLED:-false}
     volumes:
       - db-data:/app/data
 
