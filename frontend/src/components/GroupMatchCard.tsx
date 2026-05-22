@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, InputNumber, Tag, message } from 'antd';
-import { CheckCircleOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, EditOutlined, LoadingOutlined, LockOutlined } from '@ant-design/icons';
 import type { Team } from '../api/teams';
 import type { MatchInfo, MatchPrediction } from '../api/predictions';
 import { predictionsApi } from '../api/predictions';
@@ -21,6 +21,18 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
   const [saving, setSaving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Reactive timer: recalculate locked matches every 30s
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const ONE_HOUR = 60 * 60 * 1000;
+  const lockedMatchIds = new Set(
+    matches.filter((m) => new Date(m.kickoffAt).getTime() - now < ONE_HOUR).map((m) => m.id),
+  );
+
   const teamMap = new Map(teams.map((t) => [t.id, t]));
 
   // Initialize local state from predictions (only on mount / matches change)
@@ -39,10 +51,13 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
   const hasPredictions = completedCount > 0;
 
   const saveGroup = useCallback(async (currentLocal: Map<string, { homeGoals: number | null; awayGoals: number | null }>) => {
-    // Collect only complete predictions
+    // Collect only complete predictions (excluding locked matches)
     const preds: { matchId: string; homeGoals: number; awayGoals: number }[] = [];
+    const currentTime = Date.now();
     for (const [matchId, v] of currentLocal) {
       if (v.homeGoals !== null && v.awayGoals !== null) {
+        const match = matches.find((m) => m.id === matchId);
+        if (match && new Date(match.kickoffAt).getTime() - currentTime < ONE_HOUR) continue;
         preds.push({ matchId, homeGoals: v.homeGoals, awayGoals: v.awayGoals });
       }
     }
@@ -57,10 +72,10 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
     } finally {
       setSaving(false);
     }
-  }, [groupKey, onSaved]);
+  }, [groupKey, onSaved, matches]);
 
   const handleChange = (matchId: string, field: 'homeGoals' | 'awayGoals', value: number | null) => {
-    if (disabled) return;
+    if (disabled || lockedMatchIds.has(matchId)) return;
     setLocal((prev) => {
       const next = new Map(prev);
       const current = next.get(matchId) || { homeGoals: null, awayGoals: null };
@@ -123,60 +138,74 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
           const home = teamMap.get(match.homeTeamId);
           const away = teamMap.get(match.awayTeamId);
           const v = local.get(match.id) || { homeGoals: null, awayGoals: null };
+          const isLocked = lockedMatchIds.has(match.id);
+          const matchDisabled = disabled || isLocked;
 
           return (
-            <div
-              key={match.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '6px 8px',
-                borderRadius: 6,
-                background: '#1A1A1A',
-                border: '1px solid #2D2D2D',
-              }}
-            >
-              {/* Home team */}
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end', minWidth: 0 }}>
-                <span style={{ fontSize: 13, color: '#F1FAEE', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {home?.name || '?'}
-                </span>
-                {home && <TeamFlag code={home.code} size={20} />}
-              </div>
+            <div key={match.id}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 8px',
+                  borderRadius: 6,
+                  background: isLocked ? '#1A1A1A' : '#1A1A1A',
+                  border: `1px solid ${isLocked ? '#4A3A1A' : '#2D2D2D'}`,
+                  opacity: isLocked ? 0.6 : 1,
+                  transition: 'opacity 0.3s',
+                }}
+              >
+                {/* Home team */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end', minWidth: 0 }}>
+                  <span style={{ fontSize: 13, color: '#F1FAEE', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {home?.name || '?'}
+                  </span>
+                  {home && <TeamFlag code={home.code} size={20} />}
+                </div>
 
-              {/* Score inputs */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                <InputNumber
-                  size="small"
-                  min={0}
-                  max={20}
-                  value={v.homeGoals}
-                  onChange={(val) => handleChange(match.id, 'homeGoals', val)}
-                  disabled={disabled}
-                  controls={false}
-                  style={{ width: 38, textAlign: 'center' }}
-                />
-                <span style={{ color: '#A8A8A8', fontWeight: 600 }}>-</span>
-                <InputNumber
-                  size="small"
-                  min={0}
-                  max={20}
-                  value={v.awayGoals}
-                  onChange={(val) => handleChange(match.id, 'awayGoals', val)}
-                  disabled={disabled}
-                  controls={false}
-                  style={{ width: 38, textAlign: 'center' }}
-                />
-              </div>
+                {/* Score inputs */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                  <InputNumber
+                    size="small"
+                    min={0}
+                    max={20}
+                    value={v.homeGoals}
+                    onChange={(val) => handleChange(match.id, 'homeGoals', val)}
+                    disabled={matchDisabled}
+                    controls={false}
+                    style={{ width: 38, textAlign: 'center' }}
+                  />
+                  <span style={{ color: '#A8A8A8', fontWeight: 600 }}>-</span>
+                  <InputNumber
+                    size="small"
+                    min={0}
+                    max={20}
+                    value={v.awayGoals}
+                    onChange={(val) => handleChange(match.id, 'awayGoals', val)}
+                    disabled={matchDisabled}
+                    controls={false}
+                    style={{ width: 38, textAlign: 'center' }}
+                  />
+                </div>
 
-              {/* Away team */}
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                {away && <TeamFlag code={away.code} size={20} />}
-                <span style={{ fontSize: 13, color: '#F1FAEE', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {away?.name || '?'}
-                </span>
+                {/* Away team */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                  {away && <TeamFlag code={away.code} size={20} />}
+                  <span style={{ fontSize: 13, color: '#F1FAEE', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {away?.name || '?'}
+                  </span>
+                </div>
               </div>
+              {isLocked && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  fontSize: 11, color: '#D4A93C', marginTop: 2, paddingLeft: 8,
+                }}>
+                  <LockOutlined style={{ fontSize: 10 }} />
+                  Bloqueado — partido en menos de 1h
+                </div>
+              )}
             </div>
           );
         })}

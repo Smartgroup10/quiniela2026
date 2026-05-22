@@ -1,0 +1,222 @@
+import { Link } from 'react-router-dom';
+import { useTournamentStore } from '../stores/tournamentStore';
+import { useBreakpoint } from '../hooks/useBreakpoint';
+
+const V = {
+  bg0: 'var(--bg-0)', bg1: 'var(--bg-1)', bg2: 'var(--bg-2)', bg3: 'var(--bg-3)',
+  line: 'var(--line)',
+  fg0: 'var(--fg-0)', fg1: 'var(--fg-1)', fg2: 'var(--fg-2)', fg3: 'var(--fg-3)',
+  gold: 'var(--gold)', gold2: 'var(--gold-2)',
+  goldSoft: 'var(--gold-soft)', goldLine: 'var(--gold-line)',
+  green: 'var(--green)', greenSoft: 'var(--green-soft)', greenLine: 'var(--green-line)',
+  amber: 'var(--amber)',
+  blue: 'var(--blue)',
+};
+
+interface RuleRow {
+  label: string;
+  points: number;
+  desc: string;
+}
+
+function RulesTable({ title, icon, rows }: { title: string; icon: string; rows: RuleRow[] }) {
+  return (
+    <div style={{
+      background: V.bg1, border: `1px solid ${V.line}`,
+      borderRadius: 14, overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: `1px solid ${V.line}`,
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <span style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: V.goldSoft, border: `1px solid ${V.goldLine}`,
+          display: 'grid', placeItems: 'center', fontSize: 16,
+        }}>{icon}</span>
+        <h3 style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: 16, fontWeight: 600, color: V.fg0, margin: 0,
+        }}>{title}</h3>
+      </div>
+      <div>
+        {rows.map((row, i) => (
+          <div key={i} style={{
+            display: 'grid', gridTemplateColumns: '1fr auto',
+            gap: 12, padding: '14px 20px', alignItems: 'center',
+            borderBottom: i < rows.length - 1 ? `1px solid ${V.line}` : 'none',
+          }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: V.fg0 }}>{row.label}</div>
+              <div style={{ fontSize: 12, color: V.fg2, marginTop: 2 }}>{row.desc}</div>
+            </div>
+            <div style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700, fontSize: 22, color: V.gold2,
+              display: 'flex', alignItems: 'baseline', gap: 3,
+            }}>
+              {row.points > 0 ? '+' : ''}{row.points}
+              <span style={{
+                fontSize: 11, color: V.fg3, fontWeight: 500,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}>pts</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function Rules() {
+  const sc = useTournamentStore((s) => s.scoringConfig);
+  const { isMobile } = useBreakpoint();
+
+  return (
+    <div>
+      {/* Breadcrumb */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        fontSize: 12, fontFamily: "'JetBrains Mono', monospace",
+        color: V.fg2, textTransform: 'uppercase', letterSpacing: '0.06em',
+        marginBottom: 12,
+      }}>
+        <Link to="/" style={{ color: V.fg2, textDecoration: 'none' }}>Inicio</Link>
+        <span style={{ color: V.fg3 }}>›</span>
+        <span style={{ color: V.fg0 }}>Reglas</span>
+      </div>
+
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: 36, fontWeight: 600, letterSpacing: '-0.02em',
+          display: 'flex', alignItems: 'center', gap: 14,
+          color: V.fg0, margin: 0,
+        }}>
+          <span style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: V.goldSoft, border: `1px solid ${V.goldLine}`,
+            display: 'grid', placeItems: 'center', color: V.gold2,
+            fontSize: 22,
+          }}>📋</span>
+          Reglas de puntuación
+        </h1>
+        <p style={{ color: V.fg2, margin: '6px 0 0', fontSize: 14 }}>
+          Sistema de puntos para cada tipo de predicción. Las predicciones se bloquean 1 hora antes del inicio de cada partido.
+        </p>
+      </div>
+
+      {/* Rules grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: 18,
+      }}>
+        {/* Partidos */}
+        <RulesTable
+          title="Partidos de grupo"
+          icon="⚽"
+          rows={[
+            { label: 'Resultado exacto', points: sc?.matchExactScore ?? 3, desc: 'Acertaste el marcador exacto (ej: 2-1)' },
+            { label: 'Resultado correcto', points: sc?.matchCorrectResult ?? 1, desc: 'Acertaste quién gana/empata, pero no el marcador' },
+          ]}
+        />
+
+        {/* Posiciones de grupo */}
+        <RulesTable
+          title="Posiciones de grupo"
+          icon="📊"
+          rows={[
+            { label: 'Posición exacta', points: sc?.groupExactPosition ?? 2, desc: 'El equipo quedó justo en la posición que dijiste' },
+            { label: 'Clasificado en otra posición', points: sc?.groupClassifiedOtherPos ?? 1, desc: 'El equipo clasificó pero en otra posición' },
+          ]}
+        />
+
+        {/* Mejores terceros */}
+        <RulesTable
+          title="Mejores terceros"
+          icon="🥉"
+          rows={[
+            { label: 'Tercero clasificado correcto', points: sc?.bestThirdCorrect ?? 2, desc: 'Acertaste si el 3ro del grupo pasa o no a la siguiente ronda' },
+          ]}
+        />
+
+        {/* Predicciones especiales */}
+        <RulesTable
+          title="Predicciones especiales"
+          icon="🌟"
+          rows={[
+            { label: 'Campeón', points: sc?.champion ?? 10, desc: 'Acertaste al ganador del Mundial' },
+            { label: 'Subcampeón', points: sc?.runnerUp ?? 6, desc: 'Acertaste al finalista' },
+            { label: 'Tercer puesto', points: sc?.third ?? 4, desc: 'Acertaste al tercer lugar' },
+            { label: 'Goleador', points: sc?.topScorer ?? 5, desc: 'Acertaste al máximo goleador' },
+            { label: 'MVP', points: sc?.mvp ?? 3, desc: 'Acertaste al mejor jugador del torneo' },
+            { label: 'Revelación', points: sc?.revelation ?? 3, desc: 'Acertaste al equipo revelación' },
+          ]}
+        />
+
+        {/* Eliminatorias */}
+        <RulesTable
+          title="Eliminatorias"
+          icon="🏆"
+          rows={[
+            { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza' },
+            { label: 'Resultado exacto', points: sc?.knockoutExactScore ?? 2, desc: 'Acertaste el marcador del cruce' },
+            { label: 'Penales', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus: acertaste que se fue a penales' },
+            { label: 'Campeón (Fase 2)', points: sc?.championPhase2 ?? 8, desc: 'Predicción de campeón en Fase 2 (menos puntos que en Fase 1)' },
+          ]}
+        />
+
+        {/* Info adicional */}
+        <div style={{
+          background: `linear-gradient(135deg, ${V.goldSoft}, transparent 60%), ${V.bg1}`,
+          border: `1px solid ${V.goldLine}`,
+          borderRadius: 14, padding: '24px 20px',
+          display: 'flex', flexDirection: 'column', gap: 14,
+        }}>
+          <h3 style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 16, fontWeight: 600, color: V.fg0, margin: 0,
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <span style={{ fontSize: 18 }}>⏰</span>
+            Plazos importantes
+          </h3>
+          <div style={{ fontSize: 13, color: V.fg1, lineHeight: 1.7 }}>
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 8,
+              padding: '8px 0', borderBottom: `1px solid ${V.line}`,
+            }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: V.amber, flexShrink: 0, marginTop: 6,
+              }} />
+              <span>Las predicciones de cada partido se <strong style={{ color: V.fg0 }}>bloquean 1 hora antes</strong> del inicio (kickoff).</span>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 8,
+              padding: '8px 0', borderBottom: `1px solid ${V.line}`,
+            }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: V.green, flexShrink: 0, marginTop: 6,
+              }} />
+              <span>Las posiciones de grupo se <strong style={{ color: V.fg0 }}>derivan automáticamente</strong> de tus predicciones de partidos.</span>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 0',
+            }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: V.blue, flexShrink: 0, marginTop: 6,
+              }} />
+              <span>Los puntos finales se calculan cuando termine cada partido con el <strong style={{ color: V.fg0 }}>resultado oficial</strong>.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

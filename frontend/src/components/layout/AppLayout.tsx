@@ -10,6 +10,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SettingOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import ChangePasswordModal from '../ChangePasswordModal';
 import { useAuthStore } from '../../stores/authStore';
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { key: '/', icon: <HomeOutlined />, label: 'Inicio' },
   { key: '/phase1', icon: <TrophyOutlined />, label: 'Fase 1' },
   { key: '/leaderboard', icon: <OrderedListOutlined />, label: 'Ranking' },
+  { key: '/rules', icon: <FileTextOutlined />, label: 'Reglas' },
 ];
 
 const ADMIN_NAV = { key: '/admin', icon: <SettingOutlined />, label: 'Administración' };

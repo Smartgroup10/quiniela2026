@@ -13,6 +13,7 @@ import Phase1 from './pages/Phase1';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Rules from './pages/Rules';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/phase1" element={<Phase1 />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/rules" element={<Rules />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route element={<AdminRoute />}>
                   <Route path="/admin" element={<Admin />} />

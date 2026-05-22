@@ -32,6 +32,12 @@ matchPredictionsRouter.put('/:matchId', requireAuth, phaseGuard(['PHASE1_OPEN'])
     const match = await prisma.match.findUnique({ where: { id: matchId } });
     if (!match || match.stage !== 'GROUP') throw new ValidationError('Partido de grupo no encontrado');
 
+    // Block predictions 1 hour before kickoff
+    const msUntilKickoff = new Date(match.kickoffAt).getTime() - Date.now();
+    if (msUntilKickoff < 60 * 60 * 1000) {
+      throw new ValidationError('Las predicciones se bloquean 1 hora antes del inicio del partido');
+    }
+
     const prediction = await prisma.matchPrediction.upsert({
       where: { userId_matchId: { userId, matchId } },
       create: { userId, matchId: matchId, ...data },
@@ -71,6 +77,17 @@ matchPredictionsRouter.put('/group/:groupKey', requireAuth, phaseGuard(['PHASE1_
     for (const p of predictions) {
       if (!validMatchIds.has(p.matchId)) {
         throw new ValidationError(`Partido ${p.matchId} no pertenece al grupo ${groupKey}`);
+      }
+    }
+
+    // Block predictions 1 hour before kickoff (per match)
+    const matchMap = new Map(groupMatches.map((m) => [m.id, m]));
+    const now = Date.now();
+    for (const p of predictions) {
+      const m = matchMap.get(p.matchId)!;
+      const msUntilKickoff = new Date(m.kickoffAt).getTime() - now;
+      if (msUntilKickoff < 60 * 60 * 1000) {
+        throw new ValidationError(`Las predicciones se bloquean 1 hora antes del inicio del partido`);
       }
     }
 
