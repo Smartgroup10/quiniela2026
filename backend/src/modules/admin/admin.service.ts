@@ -9,7 +9,7 @@ function generateTempPassword(): string {
   return crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 8);
 }
 
-export async function createUserWithInvite(data: { name: string; email: string }) {
+export async function createUserWithInvite(data: { name: string; email: string; role?: string; leagueId?: string }) {
   const existing = await prisma.user.findUnique({ where: { email: data.email } });
   if (existing) throw new ConflictError('Este email ya esta registrado');
 
@@ -34,11 +34,19 @@ export async function createUserWithInvite(data: { name: string; email: string }
       email: data.email,
       password: hashed,
       name: data.name,
+      role: data.role || 'PLAYER',
       mustChangePassword: true,
       phase1Available,
       phase2Available,
     },
   });
+
+  // Auto-assign to league if specified
+  if (data.leagueId) {
+    await prisma.leagueUser.create({
+      data: { leagueId: data.leagueId, userId: user.id },
+    }).catch(() => {}); // Silently ignore if league doesn't exist
+  }
 
   try {
     await sendInvitationEmail(data.email, data.name, tempPassword);

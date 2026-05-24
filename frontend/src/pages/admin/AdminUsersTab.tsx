@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Card, Table, Typography, Button, Modal, Form, Input, message, Tag, Space, Alert, Popconfirm } from 'antd';
+import { Card, Table, Typography, Button, Modal, Form, Input, Select, message, Tag, Space, Alert, Popconfirm } from 'antd';
 import { UserAddOutlined, MailOutlined, UserOutlined, ReloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi, type AdminUser } from '../../api/admin';
+import { leaguesApi, type League } from '../../api/leagues';
 
 export default function AdminUsersTab() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [leagues, setLeagues] = useState<League[]>([]);
   const [form] = Form.useForm();
 
   const fetchUsers = async () => {
@@ -23,8 +25,9 @@ export default function AdminUsersTab() {
   };
 
   useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => { leaguesApi.adminGetLeagues().then(({ data }) => setLeagues(data)).catch(() => {}); }, []);
 
-  const handleCreate = async (values: { name: string; email: string }) => {
+  const handleCreate = async (values: { name: string; email: string; role?: string; leagueId?: string }) => {
     setCreating(true);
     try {
       const { data } = await adminApi.createUser(values);
@@ -167,6 +170,19 @@ export default function AdminUsersTab() {
           >
             <Input prefix={<MailOutlined />} placeholder="correo@ejemplo.com" size="large" />
           </Form.Item>
+          <Form.Item name="role" label="Rol" initialValue="PLAYER">
+            <Select size="large" options={[
+              { value: 'PLAYER', label: 'Jugador' },
+              { value: 'ADMIN', label: 'Administrador' },
+            ]} />
+          </Form.Item>
+          {leagues.length > 0 && (
+            <Form.Item name="leagueId" label="Asignar a liga (opcional)">
+              <Select size="large" allowClear placeholder="Sin liga" options={leagues.map((l) => ({
+                value: l.id, label: `${l.name} (${l.memberCount} miembros)`,
+              }))} />
+            </Form.Item>
+          )}
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={creating} block size="large">
               Crear y Enviar Invitacion
