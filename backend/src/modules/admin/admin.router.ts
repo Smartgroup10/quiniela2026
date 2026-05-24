@@ -77,7 +77,7 @@ adminRouter.patch('/teams/:id/group-result', superAdminOnly, async (req, res, ne
   try {
     const { realFinalPosition, realClassified, realBestThird } = req.body;
     const team = await prisma.team.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: {
         ...(realFinalPosition !== undefined && { realFinalPosition }),
         ...(realClassified !== undefined && { realClassified }),
@@ -93,7 +93,7 @@ adminRouter.patch('/matches/:id/result', superAdminOnly, async (req, res, next) 
   try {
     const { homeGoals, awayGoals, winnerTeamId, wentToPenalties } = req.body;
     const match = await prisma.match.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: {
         homeGoals,
         awayGoals,
@@ -226,7 +226,7 @@ adminRouter.post('/leagues', superAdminOnly, async (req, res, next) => {
 
 adminRouter.delete('/leagues/:id', superAdminOnly, async (req, res, next) => {
   try {
-    await prisma.league.delete({ where: { id: req.params.id } });
+    await prisma.league.delete({ where: { id: req.params.id as string } });
     res.json({ message: 'Liga eliminada' });
   } catch (err) { next(err); }
 });
