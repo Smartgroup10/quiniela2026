@@ -2,7 +2,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import prisma from '../../lib/prisma.js';
 import { requireAuth } from '../../middleware/auth.js';
-import { adminOnly } from '../../middleware/adminOnly.js';
+import { adminOnly, superAdminOnly } from '../../middleware/adminOnly.js';
 import { recalculateAll } from '../scoring/recalculate.js';
 import { createUserSchema } from './admin.schemas.js';
 import * as adminService from './admin.service.js';
@@ -11,14 +11,24 @@ export const adminRouter = Router();
 
 adminRouter.use(requireAuth, adminOnly);
 
-adminRouter.post('/recalculate', async (_req, res, next) => {
+/** Helper: get league IDs that a LEAGUE_ADMIN belongs to */
+async function getAdminLeagueIds(userId: string): Promise<string[]> {
+  const memberships = await prisma.leagueUser.findMany({
+    where: { userId },
+    select: { leagueId: true },
+  });
+  return memberships.map((m) => m.leagueId);
+}
+
+// --- Tournament operations: ADMIN only ---
+adminRouter.post('/recalculate', superAdminOnly, async (_req, res, next) => {
   try {
     const result = await recalculateAll();
     res.json({ message: 'Recálculo completado', ...result });
   } catch (err) { next(err); }
 });
 
-adminRouter.post('/close-phase1', async (_req, res, next) => {
+adminRouter.post('/close-phase1', superAdminOnly, async (_req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
     if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }
@@ -38,7 +48,7 @@ adminRouter.post('/close-phase1', async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
-adminRouter.post('/open-phase2', async (_req, res, next) => {
+adminRouter.post('/open-phase2', superAdminOnly, async (_req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
     if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }
@@ -50,7 +60,7 @@ adminRouter.post('/open-phase2', async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
-adminRouter.post('/close-phase2', async (_req, res, next) => {
+adminRouter.post('/close-phase2', superAdminOnly, async (_req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
     if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }
@@ -63,7 +73,7 @@ adminRouter.post('/close-phase2', async (_req, res, next) => {
 });
 
 // Update team group results (admin enters final positions after group stage)
-adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
+adminRouter.patch('/teams/:id/group-result', superAdminOnly, async (req, res, next) => {
   try {
     const { realFinalPosition, realClassified, realBestThird } = req.body;
     const team = await prisma.team.update({
@@ -79,7 +89,7 @@ adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
 });
 
 // Update match result
-adminRouter.patch('/matches/:id/result', async (req, res, next) => {
+adminRouter.patch('/matches/:id/result', superAdminOnly, async (req, res, next) => {
   try {
     const { homeGoals, awayGoals, winnerTeamId, wentToPenalties } = req.body;
     const match = await prisma.match.update({
@@ -98,7 +108,7 @@ adminRouter.patch('/matches/:id/result', async (req, res, next) => {
 });
 
 // Set real tournament bonus results
-adminRouter.patch('/tournament/real-bonus', async (req, res, next) => {
+adminRouter.patch('/tournament/real-bonus', superAdminOnly, async (req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
     if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }
@@ -111,9 +121,16 @@ adminRouter.patch('/tournament/real-bonus', async (req, res, next) => {
 });
 
 // --- User Management ---
-adminRouter.get('/users', async (_req, res, next) => {
+adminRouter.get('/users', async (req, res, next) => {
   try {
     const users = await adminService.listUsers();
+    if (req.user?.role === 'LEAGUE_ADMIN') {
+      const leagueIds = await getAdminLeagueIds(req.user.sub);
+      const filtered = users.filter((u: any) =>
+        u.leagues?.some((lu: any) => leagueIds.includes(lu.league?.id)),
+      );
+      return res.json(filtered);
+    }
     res.json(users);
   } catch (err) { next(err); }
 });
@@ -130,9 +147,23 @@ adminRouter.patch('/users/:id', async (req, res, next) => {
   try {
     const userId = req.params.id as string;
     const { role, leagueId } = req.body;
+    const isLeagueAdmin = req.user?.role === 'LEAGUE_ADMIN';
+
+    // LEAGUE_ADMIN can only modify users in their leagues
+    if (isLeagueAdmin) {
+      const leagueIds = await getAdminLeagueIds(req.user!.sub);
+      const target = await prisma.leagueUser.findFirst({
+        where: { userId, leagueId: { in: leagueIds } },
+      });
+      if (!target) return res.status(403).json({ error: 'No tienes acceso a este usuario' });
+    }
 
     // Update role if provided
-    if (role && (role === 'PLAYER' || role === 'ADMIN')) {
+    if (role && (role === 'PLAYER' || role === 'LEAGUE_ADMIN' || role === 'ADMIN')) {
+      // LEAGUE_ADMIN cannot promote to ADMIN
+      if (isLeagueAdmin && role === 'ADMIN') {
+        return res.status(403).json({ error: 'No puedes asignar rol Administrador' });
+      }
       await prisma.user.update({ where: { id: userId }, data: { role } });
     }
 
@@ -162,9 +193,13 @@ adminRouter.delete('/users/:id', async (req, res, next) => {
 });
 
 // --- League Management ---
-adminRouter.get('/leagues', async (_req, res, next) => {
+adminRouter.get('/leagues', async (req, res, next) => {
   try {
+    const where = req.user?.role === 'LEAGUE_ADMIN'
+      ? { id: { in: await getAdminLeagueIds(req.user.sub) } }
+      : {};
     const leagues = await prisma.league.findMany({
+      where,
       include: { _count: { select: { members: true } } },
       orderBy: { createdAt: 'asc' },
     });
@@ -175,7 +210,7 @@ adminRouter.get('/leagues', async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
-adminRouter.post('/leagues', async (req, res, next) => {
+adminRouter.post('/leagues', superAdminOnly, async (req, res, next) => {
   try {
     const { name } = req.body;
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -189,7 +224,7 @@ adminRouter.post('/leagues', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-adminRouter.delete('/leagues/:id', async (req, res, next) => {
+adminRouter.delete('/leagues/:id', superAdminOnly, async (req, res, next) => {
   try {
     await prisma.league.delete({ where: { id: req.params.id } });
     res.json({ message: 'Liga eliminada' });
@@ -198,6 +233,13 @@ adminRouter.delete('/leagues/:id', async (req, res, next) => {
 
 adminRouter.get('/leagues/:id/members', async (req, res, next) => {
   try {
+    // LEAGUE_ADMIN can only view their own leagues' members
+    if (req.user?.role === 'LEAGUE_ADMIN') {
+      const leagueIds = await getAdminLeagueIds(req.user.sub);
+      if (!leagueIds.includes(req.params.id)) {
+        return res.status(403).json({ error: 'No tienes acceso a esta liga' });
+      }
+    }
     const members = await prisma.leagueUser.findMany({
       where: { leagueId: req.params.id },
       include: {

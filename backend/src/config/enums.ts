@@ -1,4 +1,4 @@
-export const Role = { PLAYER: 'PLAYER', ADMIN: 'ADMIN' } as const;
+export const Role = { PLAYER: 'PLAYER', LEAGUE_ADMIN: 'LEAGUE_ADMIN', ADMIN: 'ADMIN' } as const;
 export type Role = (typeof Role)[keyof typeof Role];
 
 export const TournamentStatus = {

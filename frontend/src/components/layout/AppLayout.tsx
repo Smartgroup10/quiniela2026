@@ -172,7 +172,7 @@ export default function AppLayout() {
         })}
 
         {/* Nav: Sistema (admin) */}
-        {user?.role === 'ADMIN' && (
+        {(user?.role === 'ADMIN' || user?.role === 'LEAGUE_ADMIN') && (
           <>
             <div style={{
               fontSize: 10, color: 'var(--fg-3)', textTransform: 'uppercase',
@@ -263,7 +263,7 @@ export default function AppLayout() {
                 {user?.alias || user?.name}
               </div>
               <div style={{ fontSize: 11, color: 'var(--fg-2)' }}>
-                {user?.role === 'ADMIN' ? 'Administrador' : 'Jugador'}
+                {user?.role === 'ADMIN' ? 'Administrador' : user?.role === 'LEAGUE_ADMIN' ? 'Admin de Liga' : 'Jugador'}
               </div>
             </div>
             <LogoutOutlined style={{ color: 'var(--fg-2)', fontSize: 14 }} />

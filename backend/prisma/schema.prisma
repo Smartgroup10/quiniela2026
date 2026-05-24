@@ -21,7 +21,7 @@ model User {
   alias              String?
   avatarUrl          String?
   favoriteTeamId     String?
-  role               String   @default("PLAYER") // PLAYER | ADMIN
+  role               String   @default("PLAYER") // PLAYER | LEAGUE_ADMIN | ADMIN
   mustChangePassword Boolean  @default(false)
   registeredAt       DateTime @default(now())
   phase1Available    Boolean  @default(true)

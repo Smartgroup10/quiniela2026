@@ -80,12 +80,12 @@ export default function AdminUsersTab() {
       title: 'Rol',
       dataIndex: 'role',
       key: 'role',
-      width: 140,
+      width: 160,
       render: (role: string, record: AdminUser) => (
         <Select
           size="small"
           value={role}
-          style={{ width: 120 }}
+          style={{ width: 140 }}
           onChange={async (val) => {
             try {
               await adminApi.updateUser(record.id, { role: val });
@@ -95,6 +95,7 @@ export default function AdminUsersTab() {
           }}
           options={[
             { value: 'PLAYER', label: 'Jugador' },
+            { value: 'LEAGUE_ADMIN', label: 'Admin Liga' },
             { value: 'ADMIN', label: 'Admin' },
           ]}
         />
@@ -147,7 +148,7 @@ export default function AdminUsersTab() {
       key: 'actions',
       width: 50,
       render: (_: any, record: AdminUser) =>
-        record.role !== 'ADMIN' ? (
+        record.role === 'PLAYER' || record.role === 'LEAGUE_ADMIN' ? (
           <Popconfirm
             title="Eliminar usuario"
             description={`Se eliminara a ${record.name} y todos sus pronosticos. Esta accion no se puede deshacer.`}
@@ -215,6 +216,7 @@ export default function AdminUsersTab() {
           <Form.Item name="role" label="Rol" initialValue="PLAYER">
             <Select size="large" options={[
               { value: 'PLAYER', label: 'Jugador' },
+              { value: 'LEAGUE_ADMIN', label: 'Admin de Liga' },
               { value: 'ADMIN', label: 'Administrador' },
             ]} />
           </Form.Item>
