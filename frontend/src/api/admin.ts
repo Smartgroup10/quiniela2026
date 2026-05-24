@@ -11,6 +11,7 @@ export interface AdminUser {
   totalPoints: number;
   phase1Available: boolean;
   phase2Available: boolean;
+  leagues?: { league: { id: string; name: string } }[];
 }
 
 export interface CreateUserResponse {
@@ -62,6 +63,8 @@ export const adminApi = {
   getUsers: () => api.get<AdminUser[]>('/admin/users'),
   createUser: (data: { name: string; email: string; role?: string; leagueId?: string }) =>
     api.post<CreateUserResponse>('/admin/users', data),
+  updateUser: (userId: string, data: { role?: string; leagueId?: string | null }) =>
+    api.patch(`/admin/users/${userId}`, data),
   deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
 
   // Stats

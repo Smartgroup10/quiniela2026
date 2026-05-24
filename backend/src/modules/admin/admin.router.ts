@@ -126,6 +126,34 @@ adminRouter.post('/users', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+adminRouter.patch('/users/:id', async (req, res, next) => {
+  try {
+    const userId = req.params.id as string;
+    const { role, leagueId } = req.body;
+
+    // Update role if provided
+    if (role && (role === 'PLAYER' || role === 'ADMIN')) {
+      await prisma.user.update({ where: { id: userId }, data: { role } });
+    }
+
+    // Update league: remove all current, add new one if provided
+    if (leagueId !== undefined) {
+      await prisma.leagueUser.deleteMany({ where: { userId } });
+      if (leagueId) {
+        await prisma.leagueUser.create({ data: { leagueId, userId } });
+      }
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, alias: true, email: true, role: true, totalPoints: true,
+        mustChangePassword: true, registeredAt: true, phase1Available: true, phase2Available: true,
+        leagues: { select: { leagueId: true } } },
+    });
+    res.json(user);
+  } catch (err) { next(err); }
+});
+
 adminRouter.delete('/users/:id', async (req, res, next) => {
   try {
     await adminService.deleteUser(req.params.id, (req as any).user.id);

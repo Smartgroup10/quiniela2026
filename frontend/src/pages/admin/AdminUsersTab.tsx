@@ -80,8 +80,50 @@ export default function AdminUsersTab() {
       title: 'Rol',
       dataIndex: 'role',
       key: 'role',
-      width: 90,
-      render: (role: string) => <Tag color={role === 'ADMIN' ? 'red' : 'blue'}>{role}</Tag>,
+      width: 140,
+      render: (role: string, record: AdminUser) => (
+        <Select
+          size="small"
+          value={role}
+          style={{ width: 120 }}
+          onChange={async (val) => {
+            try {
+              await adminApi.updateUser(record.id, { role: val });
+              setUsers((prev) => prev.map((u) => u.id === record.id ? { ...u, role: val } : u));
+              message.success('Rol actualizado');
+            } catch { message.error('Error al actualizar rol'); }
+          }}
+          options={[
+            { value: 'PLAYER', label: 'Jugador' },
+            { value: 'ADMIN', label: 'Admin' },
+          ]}
+        />
+      ),
+    },
+    {
+      title: 'Liga',
+      key: 'league',
+      width: 160,
+      render: (_: any, record: AdminUser) => {
+        const currentLeagueId = record.leagues?.[0]?.league?.id || undefined;
+        return (
+          <Select
+            size="small"
+            value={currentLeagueId}
+            allowClear
+            placeholder="Sin liga"
+            style={{ width: 140 }}
+            onChange={async (val) => {
+              try {
+                await adminApi.updateUser(record.id, { leagueId: val || null });
+                fetchUsers();
+                message.success('Liga actualizada');
+              } catch { message.error('Error al actualizar liga'); }
+            }}
+            options={leagues.map((l) => ({ value: l.id, label: l.name }))}
+          />
+        );
+      },
     },
     {
       title: 'Estado',

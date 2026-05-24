@@ -84,6 +84,7 @@ export async function listUsers() {
       totalPoints: true,
       phase1Available: true,
       phase2Available: true,
+      leagues: { select: { league: { select: { id: true, name: true } } } },
     },
     orderBy: { registeredAt: 'desc' },
   });
