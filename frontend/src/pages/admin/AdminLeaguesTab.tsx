@@ -3,8 +3,10 @@ import { Card, Table, Typography, Button, Modal, Form, Input, message, Tag, Spac
 import { PlusOutlined, ReloadOutlined, DeleteOutlined, CopyOutlined, UserAddOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { leaguesApi, type League, type LeagueMember } from '../../api/leagues';
 import { adminApi, type AdminUser } from '../../api/admin';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function AdminLeaguesTab() {
+  const isSuperAdmin = useAuthStore((s) => s.user?.role) === 'ADMIN';
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -225,7 +227,7 @@ export default function AdminLeaguesTab() {
       width: 100,
       render: (count: number) => <Tag>{count}</Tag>,
     },
-    {
+    ...(isSuperAdmin ? [{
       title: '',
       key: 'actions',
       width: 50,
@@ -241,7 +243,7 @@ export default function AdminLeaguesTab() {
           <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
         </Popconfirm>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -250,9 +252,11 @@ export default function AdminLeaguesTab() {
         <Typography.Title level={4} style={{ margin: 0 }}>Gestion de Ligas</Typography.Title>
         <Space>
           <Button icon={<ReloadOutlined />} onClick={fetchLeagues} loading={loading}>Actualizar</Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
-            Crear Liga
-          </Button>
+          {isSuperAdmin && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
+              Crear Liga
+            </Button>
+          )}
         </Space>
       </div>
 
