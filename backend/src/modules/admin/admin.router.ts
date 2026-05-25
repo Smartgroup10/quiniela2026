@@ -20,8 +20,8 @@ async function getAdminLeagueIds(userId: string): Promise<string[]> {
   return memberships.map((m) => m.leagueId);
 }
 
-// --- Tournament operations: ADMIN only ---
-adminRouter.post('/recalculate', superAdminOnly, async (_req, res, next) => {
+// --- Tournament operations ---
+adminRouter.post('/recalculate', async (_req, res, next) => {
   try {
     const result = await recalculateAll();
     res.json({ message: 'Recálculo completado', ...result });
@@ -73,7 +73,7 @@ adminRouter.post('/close-phase2', superAdminOnly, async (_req, res, next) => {
 });
 
 // Update team group results (admin enters final positions after group stage)
-adminRouter.patch('/teams/:id/group-result', superAdminOnly, async (req, res, next) => {
+adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
   try {
     const { realFinalPosition, realClassified, realBestThird } = req.body;
     const team = await prisma.team.update({
@@ -89,7 +89,7 @@ adminRouter.patch('/teams/:id/group-result', superAdminOnly, async (req, res, ne
 });
 
 // Update match result
-adminRouter.patch('/matches/:id/result', superAdminOnly, async (req, res, next) => {
+adminRouter.patch('/matches/:id/result', async (req, res, next) => {
   try {
     const { homeGoals, awayGoals, winnerTeamId, wentToPenalties } = req.body;
     const match = await prisma.match.update({
@@ -108,7 +108,7 @@ adminRouter.patch('/matches/:id/result', superAdminOnly, async (req, res, next) 
 });
 
 // Set real tournament bonus results
-adminRouter.patch('/tournament/real-bonus', superAdminOnly, async (req, res, next) => {
+adminRouter.patch('/tournament/real-bonus', async (req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
     if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }

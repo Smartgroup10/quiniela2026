@@ -19,15 +19,15 @@ import AdminLeaguesTab from './admin/AdminLeaguesTab';
 
 const SUPER_ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
-  { key: 'matches',   label: 'Partidos',  icon: <TrophyOutlined /> },
   { key: 'groups',    label: 'Grupos',     icon: <TeamOutlined /> },
-  { key: 'bonus',     label: 'Bonus',      icon: <StarOutlined /> },
-  { key: 'scoring',   label: 'Puntuacion', icon: <SettingOutlined /> },
 ];
 
 const COMMON_TABS = [
-  { key: 'users',     label: 'Usuarios',   icon: <UserOutlined /> },
-  { key: 'leagues',   label: 'Ligas',      icon: <TeamOutlined /> },
+  { key: 'matches',   label: 'Partidos',   icon: <TrophyOutlined /> },
+  { key: 'bonus',     label: 'Bonus',       icon: <StarOutlined /> },
+  { key: 'scoring',   label: 'Puntuacion',  icon: <SettingOutlined /> },
+  { key: 'users',     label: 'Usuarios',    icon: <UserOutlined /> },
+  { key: 'leagues',   label: 'Ligas',       icon: <TeamOutlined /> },
 ];
 
 export default function Admin() {
@@ -49,12 +49,12 @@ export default function Admin() {
         {isSuperAdmin && (
           <>
             <div style={{ display: activeTab === 'dashboard' ? 'block' : 'none' }}><AdminDashboardTab /></div>
-            <div style={{ display: activeTab === 'matches'   ? 'block' : 'none' }}><AdminMatchesTab /></div>
             <div style={{ display: activeTab === 'groups'    ? 'block' : 'none' }}><AdminGroupsTab /></div>
-            <div style={{ display: activeTab === 'bonus'     ? 'block' : 'none' }}><AdminBonusTab /></div>
-            <div style={{ display: activeTab === 'scoring'   ? 'block' : 'none' }}><AdminScoringTab /></div>
           </>
         )}
+        <div style={{ display: activeTab === 'matches'   ? 'block' : 'none' }}><AdminMatchesTab /></div>
+        <div style={{ display: activeTab === 'bonus'     ? 'block' : 'none' }}><AdminBonusTab /></div>
+        <div style={{ display: activeTab === 'scoring'   ? 'block' : 'none' }}><AdminScoringTab /></div>
         <div style={{ display: activeTab === 'users'     ? 'block' : 'none' }}><AdminUsersTab /></div>
         <div style={{ display: activeTab === 'leagues'   ? 'block' : 'none' }}><AdminLeaguesTab /></div>
       </div>
