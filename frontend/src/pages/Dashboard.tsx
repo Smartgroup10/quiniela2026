@@ -12,7 +12,7 @@ import { useTournamentStore } from '../stores/tournamentStore';
 import { dashboardApi, type DashboardData, type LeaderboardEntry } from '../api/dashboard';
 import TeamFlag from '../components/TeamFlag';
 import { useBreakpoint } from '../hooks/useBreakpoint';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 
 /* ────────────────── Palette (CSS vars shorthand) ────────────────── */
@@ -375,7 +375,7 @@ export default function Dashboard() {
               marginTop: 12, fontSize: 11, color: V.fg2,
               display: 'flex', alignItems: 'center', gap: 6,
             }}>
-              📅 Cierre el {format(new Date(closeTarget), 'dd MMM · HH:mm', { locale: es })} CET
+              📅 Cierre el {formatInTimeZone(new Date(closeTarget), 'Europe/Madrid', 'dd MMM · HH:mm', { locale: es })} (hora española)
             </div>
           )}
         </div>
@@ -562,7 +562,7 @@ export default function Dashboard() {
                   }}>
                     {match.stage}
                   </span>
-                  <span>{format(new Date(match.kickoffAt), 'dd MMM · HH:mm', { locale: es })}</span>
+                  <span>{formatInTimeZone(new Date(match.kickoffAt), 'Europe/Madrid', 'dd MMM · HH:mm', { locale: es })}</span>
                 </div>
                 {/* Matchup */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -612,7 +612,7 @@ export default function Dashboard() {
                       padding: '2px 6px', borderRadius: 4,
                       background: V.bg3, color: V.fg1, fontWeight: 600,
                     }}>{match.stage}</span>
-                    <span>{format(new Date(match.kickoffAt), 'dd MMM', { locale: es })}</span>
+                    <span>{formatInTimeZone(new Date(match.kickoffAt), 'Europe/Madrid', 'dd MMM', { locale: es })}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, fontSize: 13, flex: 1 }}>
