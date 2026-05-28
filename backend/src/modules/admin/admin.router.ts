@@ -28,6 +28,78 @@ adminRouter.post('/recalculate', async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
+adminRouter.post('/reset-results', superAdminOnly, async (_req, res, next) => {
+  try {
+    // Reset all match results
+    await prisma.match.updateMany({
+      data: {
+        homeGoals: null,
+        awayGoals: null,
+        winnerTeamId: null,
+        wentToPenalties: false,
+        status: 'SCHEDULED',
+      },
+    });
+
+    // Reset team group results
+    await prisma.team.updateMany({
+      data: {
+        realFinalPosition: null,
+        realClassified: false,
+        realBestThird: false,
+      },
+    });
+
+    // Reset tournament bonus results
+    const tournament = await prisma.tournament.findFirst();
+    if (tournament) {
+      await prisma.tournament.update({
+        where: { id: tournament.id },
+        data: {
+          realChampionTeamId: null,
+          realRunnerUpTeamId: null,
+          realThirdTeamId: null,
+          realTopScorerName: null,
+          realMvpName: null,
+          realRevelationTeamId: null,
+        },
+      });
+    }
+
+    // Reset all prediction points
+    await prisma.matchPrediction.updateMany({ data: { pointsEarned: 0 } });
+    await prisma.groupPrediction.updateMany({ data: { pointsEarned: 0 } });
+    await prisma.bestThirdPrediction.updateMany({ data: { pointsEarned: 0 } });
+    await prisma.specialPrediction.updateMany({
+      data: {
+        championPoints: 0,
+        runnerUpPoints: 0,
+        thirdPoints: 0,
+        topScorerPoints: 0,
+        mvpPoints: 0,
+        revelationPoints: 0,
+        championPhase2Points: 0,
+      },
+    });
+    await prisma.bracketPrediction.updateMany({ data: { pointsEarned: 0 } });
+
+    // Reset all user points
+    await prisma.user.updateMany({
+      data: {
+        matchPoints: 0,
+        groupPoints: 0,
+        bestThirdPoints: 0,
+        bonusPhase1Points: 0,
+        knockoutPoints: 0,
+        bonusPhase2Points: 0,
+        totalPoints: 0,
+      },
+    });
+
+    res.json({ message: 'Todos los resultados y puntos han sido reiniciados' });
+  } catch (err) { next(err); }
+});
+
 adminRouter.post('/close-phase1', superAdminOnly, async (_req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
@@ -160,6 +232,10 @@ adminRouter.patch('/users/:id', async (req, res, next) => {
 
     // Update role if provided
     if (role && (role === 'PLAYER' || role === 'LEAGUE_ADMIN' || role === 'ADMIN')) {
+      // Cannot change your own role (prevent self-lockout)
+      if (userId === req.user!.sub) {
+        return res.status(403).json({ error: 'No puedes cambiar tu propio rol' });
+      }
       // LEAGUE_ADMIN cannot promote to ADMIN
       if (isLeagueAdmin && role === 'ADMIN') {
         return res.status(403).json({ error: 'No puedes asignar rol Administrador' });

@@ -72,11 +72,17 @@ export default function Leaderboard() {
   const [selectedLeague, setSelectedLeague] = useState<string | undefined>(undefined);
   const currentUserId = useAuthStore((s) => s.user?.id);
   const currentUser = useAuthStore((s) => s.user);
+  const isAdmin = currentUser?.role === 'ADMIN';
   const { isMobile } = useBreakpoint();
 
-  // Fetch leagues on mount
+  // Fetch leagues on mount and auto-select first league for non-admin
   useEffect(() => {
-    leaguesApi.getMyLeagues().then(({ data }) => setMyLeagues(data)).catch(() => {});
+    leaguesApi.getMyLeagues().then(({ data }) => {
+      setMyLeagues(data);
+      if (!isAdmin && data.length > 0) {
+        setSelectedLeague(data[0].id);
+      }
+    }).catch(() => {});
   }, []);
 
   // Fetch leaderboard (re-fetch when league changes)
@@ -176,25 +182,27 @@ export default function Leaderboard() {
       </div>
 
       {/* ============ LEAGUE SELECTOR ============ */}
-      {myLeagues.length > 0 && (
+      {(isAdmin || myLeagues.length > 0) && (
         <div style={{
           display: 'flex', gap: 6, flexWrap: 'wrap',
           marginBottom: 20,
           background: V.bg1, border: `1px solid ${V.line}`,
           borderRadius: 10, padding: 4,
         }}>
-          <button
-            onClick={() => setSelectedLeague(undefined)}
-            style={{
-              background: !selectedLeague ? V.bg3 : 'transparent',
-              border: 'none',
-              color: !selectedLeague ? V.gold2 : V.fg1,
-              padding: '8px 14px', borderRadius: 7,
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 600, fontSize: 13, cursor: 'pointer',
-              transition: 'background 0.15s, color 0.15s',
-            }}
-          >Global</button>
+          {isAdmin && (
+            <button
+              onClick={() => setSelectedLeague(undefined)}
+              style={{
+                background: !selectedLeague ? V.bg3 : 'transparent',
+                border: 'none',
+                color: !selectedLeague ? V.gold2 : V.fg1,
+                padding: '8px 14px', borderRadius: 7,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+            >Global</button>
+          )}
           {myLeagues.map((league) => (
             <button
               key={league.id}
@@ -210,6 +218,14 @@ export default function Leaderboard() {
               }}
             >{league.name}</button>
           ))}
+        </div>
+      )}
+      {!isAdmin && myLeagues.length === 0 && (
+        <div style={{
+          textAlign: 'center', padding: '40px 20px',
+          color: V.fg2, fontSize: 14,
+        }}>
+          No perteneces a ninguna liga. Pide a tu administrador que te asigne una.
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, memo } from 'react';
-import { Card, Button, Select, Switch, Tag, message, Segmented, Typography, Space } from 'antd';
-import { SaveOutlined, CheckCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Card, Button, Select, Switch, Tag, message, Segmented, Typography, Space, Popconfirm } from 'antd';
+import { SaveOutlined, CheckCircleOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons';
 import { matchesApi } from '../../api/matches';
 import { teamsApi, type Team } from '../../api/teams';
 import { adminApi } from '../../api/admin';
@@ -204,6 +204,18 @@ export default function AdminMatchesTab() {
     }
   };
 
+  const handleResetResults = async () => {
+    try {
+      await adminApi.resetResults();
+      message.success('Todos los resultados y puntos han sido reiniciados');
+      // Re-fetch matches to reflect reset
+      const { data } = await matchesApi.getAll();
+      setMatches(data);
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al reiniciar resultados');
+    }
+  };
+
   const groupMatches = useMemo(() => {
     const byGroup: Record<string, MatchInfo[]> = {};
     GROUPS.forEach((g) => { byGroup[g] = []; });
@@ -241,9 +253,24 @@ export default function AdminMatchesTab() {
           onChange={(v) => setView(v as string)}
           size="large"
         />
-        <Button icon={<ReloadOutlined />} onClick={handleRecalculate}>
-          Recalcular Puntos
-        </Button>
+        <Space>
+          <Button icon={<ReloadOutlined />} onClick={handleRecalculate}>
+            Recalcular Puntos
+          </Button>
+          <Popconfirm
+            title="Reiniciar todos los resultados"
+            description="Se borraran TODOS los resultados de partidos, grupos, bonus y los puntos de todos los usuarios. Esta accion no se puede deshacer."
+            onConfirm={handleResetResults}
+            okText="Si, reiniciar todo"
+            cancelText="Cancelar"
+            okButtonProps={{ danger: true }}
+            icon={<WarningOutlined style={{ color: '#ff4d4f' }} />}
+          >
+            <Button danger icon={<WarningOutlined />}>
+              Reiniciar Resultados
+            </Button>
+          </Popconfirm>
+        </Space>
       </div>
 
       <div style={{ display: view === 'Fase de Grupos' ? 'block' : 'none' }}>

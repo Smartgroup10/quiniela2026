@@ -86,6 +86,9 @@ export const adminApi = {
   // Recalculo
   recalculate: () => api.post<{ message: string; usersRecalculated: number }>('/admin/recalculate'),
 
+  // Reset total de resultados
+  resetResults: () => api.post<{ message: string }>('/admin/reset-results'),
+
   // Resultados reales bonus
   setRealBonus: (data: RealBonusData) =>
     api.patch('/admin/tournament/real-bonus', data),

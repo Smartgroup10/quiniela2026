@@ -3,6 +3,7 @@ import { Card, Table, Typography, Button, Modal, Form, Input, Select, message, T
 import { UserAddOutlined, MailOutlined, UserOutlined, ReloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi, type AdminUser } from '../../api/admin';
 import { leaguesApi, type League } from '../../api/leagues';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function AdminUsersTab() {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -11,6 +12,7 @@ export default function AdminUsersTab() {
   const [creating, setCreating] = useState(false);
   const [leagues, setLeagues] = useState<League[]>([]);
   const [form] = Form.useForm();
+  const currentUserId = useAuthStore((s) => s.user?.id);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -86,6 +88,7 @@ export default function AdminUsersTab() {
           size="small"
           value={role}
           style={{ width: 140 }}
+          disabled={record.id === currentUserId}
           onChange={async (val) => {
             try {
               await adminApi.updateUser(record.id, { role: val });
