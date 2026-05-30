@@ -61,9 +61,9 @@ export interface RealBonusData {
 export const adminApi = {
   // Usuarios
   getUsers: () => api.get<AdminUser[]>('/admin/users'),
-  createUser: (data: { name: string; email: string; role?: string; leagueId?: string }) =>
+  createUser: (data: { name: string; email: string; role?: string }) =>
     api.post<CreateUserResponse>('/admin/users', data),
-  updateUser: (userId: string, data: { role?: string; leagueId?: string | null }) =>
+  updateUser: (userId: string, data: { role?: string }) =>
     api.patch(`/admin/users/${userId}`, data),
   deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
 

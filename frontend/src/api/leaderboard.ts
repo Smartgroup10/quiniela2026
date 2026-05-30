@@ -14,9 +14,8 @@ export interface LeaderboardEntry {
 }
 
 export const leaderboardApi = {
-  get: (breakdown = true, leagueId?: string) => {
+  get: (breakdown = true) => {
     const params = new URLSearchParams({ breakdown: String(breakdown) });
-    if (leagueId) params.set('leagueId', leagueId);
     return api.get<LeaderboardEntry[]>(`/leaderboard?${params}`);
   },
 };

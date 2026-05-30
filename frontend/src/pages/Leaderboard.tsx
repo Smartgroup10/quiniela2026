@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import { leaderboardApi, type LeaderboardEntry } from '../api/leaderboard';
-import { leaguesApi, type League } from '../api/leagues';
 import { useAuthStore } from '../stores/authStore';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 
@@ -68,31 +67,17 @@ export default function Leaderboard() {
   const [data, setData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'total' | 'partidos' | 'grupos'>('total');
-  const [myLeagues, setMyLeagues] = useState<League[]>([]);
-  const [selectedLeague, setSelectedLeague] = useState<string | undefined>(undefined);
   const currentUserId = useAuthStore((s) => s.user?.id);
-  const currentUser = useAuthStore((s) => s.user);
-  const isAdmin = currentUser?.role === 'ADMIN';
   const { isMobile } = useBreakpoint();
 
-  // Fetch leagues on mount and auto-select first league for non-admin
-  useEffect(() => {
-    leaguesApi.getMyLeagues().then(({ data }) => {
-      setMyLeagues(data);
-      if (!isAdmin && data.length > 0) {
-        setSelectedLeague(data[0].id);
-      }
-    }).catch(() => {});
-  }, []);
-
-  // Fetch leaderboard (re-fetch when league changes)
+  // Fetch leaderboard on mount
   useEffect(() => {
     setLoading(true);
-    leaderboardApi.get(true, selectedLeague).then(({ data }) => {
+    leaderboardApi.get(true).then(({ data }) => {
       setData(data);
       setLoading(false);
     });
-  }, [selectedLeague]);
+  }, []);
 
   // Sort based on filter
   const sorted = useMemo(() => {
@@ -180,54 +165,6 @@ export default function Leaderboard() {
           ))}
         </div>
       </div>
-
-      {/* ============ LEAGUE SELECTOR ============ */}
-      {(isAdmin || myLeagues.length > 0) && (
-        <div style={{
-          display: 'flex', gap: 6, flexWrap: 'wrap',
-          marginBottom: 20,
-          background: V.bg1, border: `1px solid ${V.line}`,
-          borderRadius: 10, padding: 4,
-        }}>
-          {isAdmin && (
-            <button
-              onClick={() => setSelectedLeague(undefined)}
-              style={{
-                background: !selectedLeague ? V.bg3 : 'transparent',
-                border: 'none',
-                color: !selectedLeague ? V.gold2 : V.fg1,
-                padding: '8px 14px', borderRadius: 7,
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 600, fontSize: 13, cursor: 'pointer',
-                transition: 'background 0.15s, color 0.15s',
-              }}
-            >Global</button>
-          )}
-          {myLeagues.map((league) => (
-            <button
-              key={league.id}
-              onClick={() => setSelectedLeague(league.id)}
-              style={{
-                background: selectedLeague === league.id ? V.bg3 : 'transparent',
-                border: 'none',
-                color: selectedLeague === league.id ? V.gold2 : V.fg1,
-                padding: '8px 14px', borderRadius: 7,
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 600, fontSize: 13, cursor: 'pointer',
-                transition: 'background 0.15s, color 0.15s',
-              }}
-            >{league.name}</button>
-          ))}
-        </div>
-      )}
-      {!isAdmin && myLeagues.length === 0 && (
-        <div style={{
-          textAlign: 'center', padding: '40px 20px',
-          color: V.fg2, fontSize: 14,
-        }}>
-          No perteneces a ninguna liga. Pide a tu administrador que te asigne una.
-        </div>
-      )}
 
       {/* ============ STADIUM PODIUM ============ */}
       {podium.length >= 3 && (

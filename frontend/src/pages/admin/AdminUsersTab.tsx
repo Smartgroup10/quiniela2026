@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card, Table, Typography, Button, Modal, Form, Input, Select, message, Tag, Space, Alert, Popconfirm } from 'antd';
 import { UserAddOutlined, MailOutlined, UserOutlined, ReloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi, type AdminUser } from '../../api/admin';
-import { leaguesApi, type League } from '../../api/leagues';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function AdminUsersTab() {
@@ -10,7 +9,6 @@ export default function AdminUsersTab() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [leagues, setLeagues] = useState<League[]>([]);
   const [form] = Form.useForm();
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -27,9 +25,8 @@ export default function AdminUsersTab() {
   };
 
   useEffect(() => { fetchUsers(); }, []);
-  useEffect(() => { leaguesApi.adminGetLeagues().then(({ data }) => setLeagues(data)).catch(() => {}); }, []);
 
-  const handleCreate = async (values: { name: string; email: string; role?: string; leagueId?: string }) => {
+  const handleCreate = async (values: { name: string; email: string; role?: string }) => {
     setCreating(true);
     try {
       const { data } = await adminApi.createUser(values);
@@ -103,31 +100,6 @@ export default function AdminUsersTab() {
           ]}
         />
       ),
-    },
-    {
-      title: 'Liga',
-      key: 'league',
-      width: 160,
-      render: (_: any, record: AdminUser) => {
-        const currentLeagueId = record.leagues?.[0]?.league?.id || undefined;
-        return (
-          <Select
-            size="small"
-            value={currentLeagueId}
-            allowClear
-            placeholder="Sin liga"
-            style={{ width: 140 }}
-            onChange={async (val) => {
-              try {
-                await adminApi.updateUser(record.id, { leagueId: val || null });
-                fetchUsers();
-                message.success('Liga actualizada');
-              } catch { message.error('Error al actualizar liga'); }
-            }}
-            options={leagues.map((l) => ({ value: l.id, label: l.name }))}
-          />
-        );
-      },
     },
     {
       title: 'Estado',
@@ -223,13 +195,6 @@ export default function AdminUsersTab() {
               { value: 'ADMIN', label: 'Administrador' },
             ]} />
           </Form.Item>
-          {leagues.length > 0 && (
-            <Form.Item name="leagueId" label="Asignar a liga (opcional)">
-              <Select size="large" allowClear placeholder="Sin liga" options={leagues.map((l) => ({
-                value: l.id, label: `${l.name} (${l.memberCount} miembros)`,
-              }))} />
-            </Form.Item>
-          )}
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={creating} block size="large">
               Crear y Enviar Invitacion
