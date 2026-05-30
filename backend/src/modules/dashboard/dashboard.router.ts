@@ -23,6 +23,7 @@ dashboardRouter.get('/', requireAuth, async (req, res, next) => {
       prisma.tournament.findFirst(),
       prisma.scoringConfig.findFirst(),
       prisma.user.findMany({
+        where: { role: { not: 'ADMIN' } },
         select: {
           id: true, name: true, alias: true, avatarUrl: true,
           totalPoints: true, matchPoints: true, groupPoints: true,

@@ -9,6 +9,7 @@ leaderboardRouter.get('/', requireAuth, async (req, res, next) => {
     const breakdown = req.query.breakdown === 'true';
 
     const users = await prisma.user.findMany({
+      where: { role: { not: 'ADMIN' } },
       select: {
         id: true,
         name: true,

@@ -8,6 +8,7 @@ export async function recalculateAll() {
   const tournament = await prisma.tournament.findFirst();
   const teams = await prisma.team.findMany();
   const users = await prisma.user.findMany({
+    where: { role: { not: 'ADMIN' } },
     include: {
       matchPredictions: { include: { match: true } },
       groupPredictions: true,

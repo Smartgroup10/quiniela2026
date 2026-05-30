@@ -353,7 +353,7 @@ adminRouter.delete('/leagues/:id/members/:userId', async (req, res, next) => {
 
 adminRouter.get('/stats', async (_req, res, next) => {
   try {
-    const totalUsers = await prisma.user.count();
+    const totalUsers = await prisma.user.count({ where: { role: { not: 'ADMIN' } } });
     const totalMatchPredictions = await prisma.matchPrediction.count();
     const totalPredictions = await prisma.groupPrediction.count();
     const totalSpecials = await prisma.specialPrediction.count();
