@@ -51,7 +51,9 @@ export function scoreBestThirdPrediction(
 ): number {
   const real = realTeams.find((r) => r.teamId === pred.thirdTeamId);
   if (!real) return 0;
-  return pred.willPass === real.realBestThird ? rules.bestThirdCorrect : 0;
+  // Only score positive predictions: correctly identifying a third that WILL qualify
+  if (pred.willPass && real.realBestThird) return rules.bestThirdCorrect;
+  return 0;
 }
 
 export function scoreBracketMatch(
