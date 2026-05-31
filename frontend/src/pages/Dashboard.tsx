@@ -585,10 +585,18 @@ export default function Dashboard() {
       {/* ============ RECENT RESULTS ============ */}
       {data.recentResults.length > 0 && (
         <div style={{ marginTop: 24 }}>
-          <h3 style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: 16, fontWeight: 600, color: V.fg0, margin: '0 0 14px',
-          }}>Resultados recientes</h3>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 14,
+          }}>
+            <h3 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 16, fontWeight: 600, color: V.fg0, margin: 0,
+            }}>Resultados recientes</h3>
+            <Link to="/results" style={{
+              color: V.fg2, fontSize: 12, fontWeight: 600, textDecoration: 'none',
+            }}>Ver todos →</Link>
+          </div>
           <div style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${Math.min(data.recentResults.length, 3)}, 1fr)`,

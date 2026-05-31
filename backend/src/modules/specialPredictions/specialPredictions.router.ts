@@ -35,6 +35,12 @@ specialPredictionsRouter.put('/', requireAuth, phaseGuard(['PHASE1_OPEN']), asyn
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user?.phase1Available) throw new ForbiddenError('Fase 1 no disponible para tu cuenta');
 
+    // Block bonus predictions after phase1ClosesAt (start of tournament)
+    const tournament = await prisma.tournament.findFirst();
+    if (tournament?.phase1ClosesAt && new Date(tournament.phase1ClosesAt).getTime() <= Date.now()) {
+      throw new ForbiddenError('Los bonus se bloquearon al inicio del Mundial');
+    }
+
     const data = specialsSchema.parse(req.body);
 
     const prediction = await prisma.specialPrediction.upsert({

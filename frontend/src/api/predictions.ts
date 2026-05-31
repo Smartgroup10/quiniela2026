@@ -38,6 +38,13 @@ export interface SpecialPrediction {
   mvpName?: string | null;
   revelationTeamId?: string | null;
   championPhase2TeamId?: string | null;
+  championPoints?: number;
+  runnerUpPoints?: number;
+  thirdPoints?: number;
+  topScorerPoints?: number;
+  mvpPoints?: number;
+  revelationPoints?: number;
+  championPhase2Points?: number;
 }
 
 export interface MatchInfo {

@@ -68,14 +68,18 @@ export async function recalculateAll() {
       await prisma.groupPrediction.update({ where: { id: gp.id }, data: { pointsEarned: pts } });
     }
 
-    // Score best third predictions
+    // Score best third predictions (use all teams, not just those with positions)
+    const allTeamsBestThird = teams
+      .filter((t) => t.realFinalPosition != null || t.realBestThird)
+      .map((t) => ({ teamId: t.id, realBestThird: t.realBestThird }));
+
     for (const tp of user.thirdPredictions) {
       const gp = user.groupPredictions.find((g) => g.groupKey === tp.groupKey);
       if (!gp) continue;
       const thirdTeamId = gp.thirdTeamId;
       const pts = scoreBestThirdPrediction(
         { thirdTeamId, willPass: tp.willPass },
-        teamsWithResults,
+        allTeamsBestThird,
         config,
       );
       bestThirdPoints += pts;

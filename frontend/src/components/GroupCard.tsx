@@ -131,11 +131,16 @@ export default function GroupCard({ groupKey, teams, prediction, disabled, onSav
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontWeight: 700 }}>Grupo {groupKey}</span>
-          {saved ? (
-            <Tag icon={<CheckCircleOutlined />} color="success">Guardado</Tag>
-          ) : (
-            <Tag icon={<EditOutlined />} color="warning">Pendiente</Tag>
-          )}
+          <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {prediction && prediction.pointsEarned > 0 && (
+              <Tag color="gold" style={{ margin: 0 }}>+{prediction.pointsEarned} pts</Tag>
+            )}
+            {saved ? (
+              <Tag icon={<CheckCircleOutlined />} color="success" style={{ margin: 0 }}>Guardado</Tag>
+            ) : (
+              <Tag icon={<EditOutlined />} color="warning" style={{ margin: 0 }}>Pendiente</Tag>
+            )}
+          </span>
         </div>
       }
       size="small"

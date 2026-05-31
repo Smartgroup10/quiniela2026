@@ -62,6 +62,7 @@ export default function Phase1() {
 
   const isPhase1Open = tournament?.status === 'PHASE1_OPEN';
   const disabled = !isPhase1Open || !user?.phase1Available;
+  const bonusLocked = disabled || (tournament?.phase1ClosesAt ? new Date(tournament.phase1ClosesAt).getTime() <= Date.now() : false);
 
   const groupedTeams = useMemo(() => {
     const map: Record<string, Team[]> = {};
@@ -142,7 +143,7 @@ export default function Phase1() {
       <SpecialsForm
         teams={teams}
         specials={specials}
-        disabled={disabled}
+        disabled={bonusLocked}
         onSaved={loadData}
       />
     </div>

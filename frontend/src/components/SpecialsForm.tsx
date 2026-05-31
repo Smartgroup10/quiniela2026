@@ -5,6 +5,20 @@ import type { Team } from '../api/teams';
 import type { SpecialPrediction } from '../api/predictions';
 import { predictionsApi } from '../api/predictions';
 
+function PointLabel({ text, pts }: { text: string; pts?: number }) {
+  return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {text}
+      {pts != null && pts > 0 && (
+        <span style={{
+          background: '#2DC653', color: '#fff', fontSize: 11,
+          fontWeight: 700, padding: '1px 6px', borderRadius: 4,
+        }}>+{pts}</span>
+      )}
+    </span>
+  );
+}
+
 interface Props {
   teams: Team[];
   specials: SpecialPrediction | null;
@@ -63,7 +77,7 @@ export default function SpecialsForm({ teams, specials, disabled, onSaved }: Pro
       <Form form={form} layout="vertical" disabled={disabled}>
         <Row gutter={16}>
           <Col xs={24} md={8}>
-            <Form.Item name="championTeamId" label="Campeon (10 pts)">
+            <Form.Item name="championTeamId" label={<PointLabel text="Campeon (10 pts)" pts={specials?.championPoints} />}>
               <Select
                 placeholder="Selecciona campeon"
                 options={teamOptions}
@@ -74,7 +88,7 @@ export default function SpecialsForm({ teams, specials, disabled, onSaved }: Pro
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item name="runnerUpTeamId" label="Subcampeon (6 pts)">
+            <Form.Item name="runnerUpTeamId" label={<PointLabel text="Subcampeon (6 pts)" pts={specials?.runnerUpPoints} />}>
               <Select
                 placeholder="Selecciona subcampeon"
                 options={teamOptions}
@@ -85,7 +99,7 @@ export default function SpecialsForm({ teams, specials, disabled, onSaved }: Pro
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item name="thirdTeamId" label="Tercer puesto (4 pts)">
+            <Form.Item name="thirdTeamId" label={<PointLabel text="Tercer puesto (4 pts)" pts={specials?.thirdPoints} />}>
               <Select
                 placeholder="Selecciona 3er puesto"
                 options={teamOptions}
@@ -98,17 +112,17 @@ export default function SpecialsForm({ teams, specials, disabled, onSaved }: Pro
         </Row>
         <Row gutter={16}>
           <Col xs={24} md={8}>
-            <Form.Item name="topScorerName" label="Maximo goleador (5 pts)">
+            <Form.Item name="topScorerName" label={<PointLabel text="Maximo goleador (5 pts)" pts={specials?.topScorerPoints} />}>
               <Input placeholder="Nombre del jugador" />
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item name="mvpName" label="MVP (3 pts)">
+            <Form.Item name="mvpName" label={<PointLabel text="MVP (3 pts)" pts={specials?.mvpPoints} />}>
               <Input placeholder="Nombre del jugador" />
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item name="revelationTeamId" label="Equipo revelacion (3 pts)">
+            <Form.Item name="revelationTeamId" label={<PointLabel text="Equipo revelacion (3 pts)" pts={specials?.revelationPoints} />}>
               <Select
                 placeholder="Selecciona equipo"
                 options={teamOptions}

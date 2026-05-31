@@ -108,6 +108,72 @@ export default function Rules() {
         </p>
       </div>
 
+      {/* Phases explanation */}
+      <div style={{
+        background: V.bg1, border: `1px solid ${V.line}`,
+        borderRadius: 14, padding: '24px 20px', marginBottom: 24,
+      }}>
+        <h3 style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: 18, fontWeight: 600, color: V.fg0, margin: '0 0 6px',
+        }}>Como funciona</h3>
+        <p style={{ fontSize: 14, color: V.fg1, margin: '0 0 16px' }}>
+          La quiniela es de <strong style={{ color: V.gold2 }}>20 €</strong> por persona y se juega en 2 fases:
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+          {/* Fase 1 */}
+          <div style={{
+            background: V.bg2, borderRadius: 10, padding: '16px 18px',
+            border: `1px solid ${V.line}`,
+          }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, color: V.gold2,
+              textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}>Fase 1 — Grupos</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: V.fg1, lineHeight: 1.8 }}>
+              <li>Predicciones de partidos de grupo</li>
+              <li>Clasificacion de los grupos (se deriva automaticamente)</li>
+              <li>Mejores terceros</li>
+              <li>Bonus iniciales: campeon, subcampeon, 3er puesto, goleador, MVP y revelacion</li>
+            </ul>
+            <div style={{
+              marginTop: 12, padding: '8px 12px', borderRadius: 6,
+              background: V.goldSoft, border: `1px solid ${V.goldLine}`,
+              fontSize: 12, color: V.fg0,
+            }}>
+              <strong>Fecha limite bonus:</strong> 10 de junio (1 dia antes del Mundial).<br />
+              <strong>Partidos:</strong> se pueden cambiar hasta 1h antes del inicio de cada partido.
+            </div>
+          </div>
+
+          {/* Fase 2 */}
+          <div style={{
+            background: V.bg2, borderRadius: 10, padding: '16px 18px',
+            border: `1px solid ${V.line}`,
+          }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, color: V.blue,
+              textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}>Fase 2 — Eliminatorias</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: V.fg1, lineHeight: 1.8 }}>
+              <li>Una vez se definan los cruces de dieciseisavos, rellenas tus predicciones hasta la final</li>
+              <li>Prediccion de campeon de Fase 2 (8 pts extra)</li>
+            </ul>
+            <div style={{
+              marginTop: 12, padding: '8px 12px', borderRadius: 6,
+              background: V.greenSoft, border: `1px solid ${V.greenLine}`,
+              fontSize: 12, color: V.fg0,
+            }}>
+              <strong>Fecha limite:</strong> domingo 28 de junio, antes del inicio de dieciseisavos.<br />
+              <strong>Importante:</strong> NO se pueden cambiar las predicciones despues de la fecha limite.
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Rules grid */}
       <div style={{
         display: 'grid',

@@ -148,14 +148,20 @@ adminRouter.post('/close-phase2', superAdminOnly, async (_req, res, next) => {
 adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
   try {
     const { realFinalPosition, realClassified, realBestThird } = req.body;
+
+    // If marking as best third, auto-set position 3 if not already set
+    const autoPosition = realBestThird === true ? { realFinalPosition: 3 } : {};
+
     const team = await prisma.team.update({
       where: { id: req.params.id as string },
       data: {
+        ...autoPosition,
         ...(realFinalPosition !== undefined && { realFinalPosition }),
         ...(realClassified !== undefined && { realClassified }),
         ...(realBestThird !== undefined && { realBestThird }),
       },
     });
+    await recalculateAll();
     res.json(team);
   } catch (err) { next(err); }
 });
@@ -188,6 +194,7 @@ adminRouter.patch('/tournament/real-bonus', async (req, res, next) => {
       where: { id: tournament.id },
       data: req.body,
     });
+    await recalculateAll();
     res.json(updated);
   } catch (err) { next(err); }
 });
