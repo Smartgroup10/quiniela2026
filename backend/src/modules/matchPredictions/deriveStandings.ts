@@ -179,10 +179,13 @@ export function deriveGroupStandings(
  * From all 12 group standings, determine the best 8 third-place teams.
  * FIFA criteria for third-place ranking: points > GD > GF.
  * (No head-to-head since they're from different groups.)
+ *
+ * Returns `isTied: true` for groups that are part of an unresolvable tie
+ * spanning the 8th-place cutoff (same PTS, GD, GF but more teams than slots).
  */
 export function deriveBestThirds(
   allGroupStandings: GroupStanding[],
-): { groupKey: string; teamId: string; qualifies: boolean; points: number; goalDifference: number; goalsFor: number }[] {
+): { groupKey: string; teamId: string; qualifies: boolean; isTied: boolean; points: number; goalDifference: number; goalsFor: number }[] {
   const thirds = allGroupStandings.map((gs) => {
     const third = gs.standings.find((s) => s.position === 3);
     return {
@@ -192,6 +195,7 @@ export function deriveBestThirds(
       goalDifference: third?.goalDifference ?? 0,
       goalsFor: third?.goalsFor ?? 0,
       qualifies: false,
+      isTied: false,
     };
   });
 
@@ -201,10 +205,35 @@ export function deriveBestThirds(
     return b.goalsFor - a.goalsFor;
   });
 
+  // Detect tie at boundary (position 8)
+  const tiedGroupKeys = new Set<string>();
+  if (sorted.length >= 8) {
+    const atCutoff = sorted[7]; // 8th position
+    const tiedAll = sorted.filter(
+      (t) => t.points === atCutoff.points &&
+             t.goalDifference === atCutoff.goalDifference &&
+             t.goalsFor === atCutoff.goalsFor,
+    );
+    if (tiedAll.length > 1) {
+      // Check if the tie actually spans the cutoff
+      const clearlyAbove = sorted.filter(
+        (t) =>
+          t.points > atCutoff.points ||
+          (t.points === atCutoff.points && t.goalDifference > atCutoff.goalDifference) ||
+          (t.points === atCutoff.points && t.goalDifference === atCutoff.goalDifference && t.goalsFor > atCutoff.goalsFor),
+      );
+      const availableSlots = 8 - clearlyAbove.length;
+      if (tiedAll.length > availableSlots) {
+        for (const t of tiedAll) tiedGroupKeys.add(t.groupKey);
+      }
+    }
+  }
+
   const qualifyingGroups = new Set(sorted.slice(0, 8).map((t) => t.groupKey));
 
   return thirds.map((t) => ({
     ...t,
-    qualifies: qualifyingGroups.has(t.groupKey),
+    isTied: tiedGroupKeys.has(t.groupKey),
+    qualifies: tiedGroupKeys.has(t.groupKey) ? false : qualifyingGroups.has(t.groupKey),
   }));
 }

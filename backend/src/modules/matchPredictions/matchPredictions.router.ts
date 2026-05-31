@@ -182,7 +182,19 @@ async function deriveAndCacheStandings(userId: string, anyTeamId: string) {
   // Derive best thirds (only if we have all 12 groups)
   if (groupStandings.length === 12) {
     const bestThirds = deriveBestThirds(groupStandings);
+
+    // Get existing predictions to preserve manual overrides for tied groups
+    const existing = await prisma.bestThirdPrediction.findMany({
+      where: { userId },
+    });
+    const existingMap = new Map(existing.map((e) => [e.groupKey, e.willPass]));
+
     for (const bt of bestThirds) {
+      // If tied, preserve user's manual choice (don't overwrite)
+      if (bt.isTied && existingMap.has(bt.groupKey)) {
+        continue;
+      }
+
       await prisma.bestThirdPrediction.upsert({
         where: { userId_groupKey: { userId, groupKey: bt.groupKey } },
         create: { userId, groupKey: bt.groupKey, willPass: bt.qualifies },

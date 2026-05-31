@@ -4,7 +4,7 @@ import GroupMatchCard from '../components/GroupMatchCard';
 import BestThirdsTable from '../components/BestThirdsTable';
 import SpecialsForm from '../components/SpecialsForm';
 import { teamsApi, type Team } from '../api/teams';
-import { predictionsApi, type MatchInfo, type MatchPrediction, type SpecialPrediction } from '../api/predictions';
+import { predictionsApi, type MatchInfo, type MatchPrediction, type BestThirdPrediction, type SpecialPrediction } from '../api/predictions';
 import { useTournamentStore } from '../stores/tournamentStore';
 import { tournamentApi } from '../api/tournament';
 import { useAuthStore } from '../stores/authStore';
@@ -16,17 +16,19 @@ export default function Phase1() {
   const [matches, setMatches] = useState<MatchInfo[]>([]);
   const [matchPredictions, setMatchPredictions] = useState<Map<string, { homeGoals: number; awayGoals: number }>>(new Map());
   const [specials, setSpecials] = useState<SpecialPrediction | null>(null);
+  const [bestThirdOverrides, setBestThirdOverrides] = useState<Map<string, boolean>>(new Map());
   const [loading, setLoading] = useState(true);
   const { tournament, setTournament } = useTournamentStore();
   const user = useAuthStore((s) => s.user);
 
   const loadData = async () => {
     try {
-      const [teamsRes, matchesRes, predsRes, specialsRes, tournamentRes] = await Promise.all([
+      const [teamsRes, matchesRes, predsRes, specialsRes, bestThirdsRes, tournamentRes] = await Promise.all([
         teamsApi.getAll(),
         predictionsApi.getGroupMatches(),
         predictionsApi.getMyMatchPredictions(),
         predictionsApi.getMySpecials(),
+        predictionsApi.getMyBestThirds(),
         tournamentApi.get(),
       ]);
       setTeams(teamsRes.data);
@@ -38,6 +40,13 @@ export default function Phase1() {
         predMap.set(p.matchId, { homeGoals: p.homeGoals, awayGoals: p.awayGoals });
       }
       setMatchPredictions(predMap);
+
+      // Build best third overrides map
+      const overridesMap = new Map<string, boolean>();
+      for (const bt of bestThirdsRes.data) {
+        overridesMap.set(bt.groupKey, bt.willPass);
+      }
+      setBestThirdOverrides(overridesMap);
 
       setSpecials(specialsRes.data);
       setTournament(tournamentRes.data.tournament, tournamentRes.data.scoringConfig);
@@ -56,6 +65,15 @@ export default function Phase1() {
       for (const p of savedPreds) {
         next.set(p.matchId, { homeGoals: p.homeGoals, awayGoals: p.awayGoals });
       }
+      return next;
+    });
+  }, []);
+
+  const handleBestThirdOverride = useCallback(async (groupKey: string, willPass: boolean) => {
+    await predictionsApi.saveBestThird(groupKey, willPass);
+    setBestThirdOverrides(prev => {
+      const next = new Map(prev);
+      next.set(groupKey, willPass);
       return next;
     });
   }, []);
@@ -130,11 +148,14 @@ export default function Phase1() {
 
       <Divider />
 
-      {/* Best Thirds (derived, read-only) */}
+      {/* Best Thirds (derived, manual tiebreak) */}
       <BestThirdsTable
         teams={teams}
         matches={matches}
         matchPredictions={matchPredictions}
+        manualOverrides={bestThirdOverrides}
+        onManualOverride={handleBestThirdOverride}
+        disabled={disabled}
       />
 
       <Divider />
