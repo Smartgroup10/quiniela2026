@@ -32,6 +32,11 @@ matchPredictionsRouter.put('/:matchId', requireAuth, phaseGuard(['PHASE1_OPEN'])
     const match = await prisma.match.findUnique({ where: { id: matchId } });
     if (!match || match.stage !== 'GROUP') throw new ValidationError('Partido de grupo no encontrado');
 
+    // Block predictions for finished matches
+    if (match.status === 'FINISHED' || match.status === 'LIVE') {
+      throw new ValidationError('No se pueden modificar predicciones de un partido en curso o finalizado');
+    }
+
     // Block predictions if manually locked by admin
     if (match.manuallyLocked) {
       throw new ValidationError('Este partido ha sido bloqueado por el administrador');
@@ -90,6 +95,7 @@ matchPredictionsRouter.put('/group/:groupKey', requireAuth, phaseGuard(['PHASE1_
     const now = Date.now();
     const filteredPredictions = predictions.filter((p) => {
       const m = matchMap.get(p.matchId)!;
+      if (m.status === 'FINISHED' || m.status === 'LIVE') return false;
       if (m.manuallyLocked) return false;
       const msUntilKickoff = new Date(m.kickoffAt).getTime() - now;
       if (msUntilKickoff < 60 * 60 * 1000) return false;

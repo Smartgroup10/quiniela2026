@@ -144,6 +144,19 @@ adminRouter.post('/close-phase2', superAdminOnly, async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Toggle bonus phase 1 lock
+adminRouter.patch('/tournament/bonus-lock', async (_req, res, next) => {
+  try {
+    const tournament = await prisma.tournament.findFirst();
+    if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }
+    const updated = await prisma.tournament.update({
+      where: { id: tournament.id },
+      data: { bonusPhase1Locked: !tournament.bonusPhase1Locked },
+    });
+    res.json(updated);
+  } catch (err) { next(err); }
+});
+
 // Update team group results (admin enters final positions after group stage)
 adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
   try {

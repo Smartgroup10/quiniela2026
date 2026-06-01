@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Spin } from 'antd';
+import { Spin, Divider } from 'antd';
 import { Link } from 'react-router-dom';
 import { TrophyOutlined } from '@ant-design/icons';
 import { resultsApi, type ResultMatch } from '../api/results';
+import { teamsApi, type Team } from '../api/teams';
 import TeamFlag from '../components/TeamFlag';
+import GroupComparison from '../components/GroupComparison';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 
@@ -20,11 +22,18 @@ const V = {
 
 export default function Results() {
   const [matches, setMatches] = useState<ResultMatch[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    resultsApi.getAll()
-      .then((res) => setMatches(res.data))
+    Promise.all([
+      resultsApi.getAll(),
+      teamsApi.getAll(),
+    ])
+      .then(([matchesRes, teamsRes]) => {
+        setMatches(matchesRes.data);
+        setTeams(teamsRes.data);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -84,6 +93,14 @@ export default function Results() {
             <MatchCard key={match.id} match={match} />
           ))}
         </div>
+      )}
+
+      {/* Group predictions comparison */}
+      {teams.length > 0 && (
+        <>
+          <Divider />
+          <GroupComparison teams={teams} />
+        </>
       )}
     </div>
   );

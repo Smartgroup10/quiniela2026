@@ -14,6 +14,7 @@ export interface Tournament {
   realTopScorerName: string | null;
   realMvpName: string | null;
   realRevelationTeamId: string | null;
+  bonusPhase1Locked: boolean;
 }
 
 export interface ScoringConfig {

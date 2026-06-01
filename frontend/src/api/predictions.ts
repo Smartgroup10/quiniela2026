@@ -87,6 +87,10 @@ export const predictionsApi = {
   saveSpecials: (data: Partial<SpecialPrediction>) =>
     api.put<SpecialPrediction>('/special-predictions', data),
 
+  // Group predictions comparison (only available when phase closed)
+  getGroupPredictionsByGroup: (groupKey: string) =>
+    api.get<(GroupPrediction & { user: { id: string; name: string; alias: string | null } })[]>(`/group-predictions/group/${groupKey}`),
+
   // Matches
   getGroupMatches: () => api.get<MatchInfo[]>('/matches', { params: { stage: 'GROUP' } }),
 };

@@ -95,6 +95,9 @@ export const adminApi = {
   setRealBonus: (data: RealBonusData) =>
     api.patch('/admin/tournament/real-bonus', data),
 
+  // Toggle bloqueo bonus fase 1
+  toggleBonusLock: () => api.patch<{ bonusPhase1Locked: boolean }>('/admin/tournament/bonus-lock'),
+
   // Sync resultados desde API externa
   syncResults: () => api.post<SyncResult>('/admin/football/sync-results'),
 };

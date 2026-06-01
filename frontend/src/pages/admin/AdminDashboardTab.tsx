@@ -7,6 +7,8 @@ import {
   ReloadOutlined,
   ExclamationCircleOutlined,
   CloudDownloadOutlined,
+  LockOutlined,
+  UnlockOutlined,
 } from '@ant-design/icons';
 import { adminApi, type AdminStats, type SyncResult } from '../../api/admin';
 import { tournamentApi, type Tournament, type ScoringConfig } from '../../api/tournament';
@@ -57,6 +59,7 @@ export default function AdminDashboardTab() {
   const [recalculating, setRecalculating] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<SyncResult | null>(null);
+  const [togglingBonus, setTogglingBonus] = useState(false);
   const setTournament = useTournamentStore((s) => s.setTournament);
 
   const fetchData = async () => {
@@ -134,6 +137,19 @@ export default function AdminDashboardTab() {
     }
   };
 
+  const handleToggleBonusLock = async () => {
+    setTogglingBonus(true);
+    try {
+      const { data } = await adminApi.toggleBonusLock();
+      setTournamentLocal((prev) => prev ? { ...prev, bonusPhase1Locked: data.bonusPhase1Locked } : prev);
+      message.success(data.bonusPhase1Locked ? 'Bonus Fase 1 bloqueados' : 'Bonus Fase 1 desbloqueados');
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al cambiar bloqueo de bonus');
+    } finally {
+      setTogglingBonus(false);
+    }
+  };
+
   const statusCfg = tournament ? STATUS_CONFIG[tournament.status] : null;
   const transition = tournament ? TRANSITIONS[tournament.status] : null;
 
@@ -199,6 +215,17 @@ export default function AdminDashboardTab() {
             icon={<ReloadOutlined />}
           >
             Recalcular Puntos
+          </Button>
+
+          <Button
+            size="large"
+            type={tournament?.bonusPhase1Locked ? 'primary' : 'default'}
+            danger={!!tournament?.bonusPhase1Locked}
+            onClick={handleToggleBonusLock}
+            loading={togglingBonus}
+            icon={tournament?.bonusPhase1Locked ? <LockOutlined /> : <UnlockOutlined />}
+          >
+            {tournament?.bonusPhase1Locked ? 'Bonus Bloqueados' : 'Bloquear Bonus F1'}
           </Button>
 
           <Button
