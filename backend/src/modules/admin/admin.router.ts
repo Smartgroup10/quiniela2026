@@ -155,13 +155,16 @@ adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
     // Resolve effective position after auto-position override
     const effectivePos = realFinalPosition ?? (autoPosition as any).realFinalPosition;
 
-    // Auto-derive realClassified from position when not explicitly sent:
-    // positions 1-3 = classified, position 4 = not classified
+    // Auto-derive realClassified when not explicitly sent:
+    // pos 1-2 = always classified, pos 4 = never, pos 3 = only if bestThird
+    const effectiveBestThird = realBestThird ?? false;
     let derivedClassified: boolean | undefined;
     if (realClassified !== undefined) {
       derivedClassified = realClassified;
+    } else if (effectiveBestThird) {
+      derivedClassified = true; // best third always classified
     } else if (effectivePos !== undefined) {
-      derivedClassified = effectivePos <= 3;
+      derivedClassified = effectivePos <= 2;
     }
 
     const team = await prisma.team.update({
