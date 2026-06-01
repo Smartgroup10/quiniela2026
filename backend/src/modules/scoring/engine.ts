@@ -143,13 +143,15 @@ export function scoreSpecials(
 ) {
   const normalize = (s?: string | null) => (s ?? '').trim().toLowerCase();
 
+  const eq = (a?: string | null, b?: string | null) => a != null && b != null && a === b;
+
   return {
-    championPoints: specials.championTeamId === real.championTeamId ? rules.champion : 0,
-    runnerUpPoints: specials.runnerUpTeamId === real.runnerUpTeamId ? rules.runnerUp : 0,
-    thirdPoints: specials.thirdTeamId === real.thirdTeamId ? rules.third : 0,
+    championPoints: eq(specials.championTeamId, real.championTeamId) ? rules.champion : 0,
+    runnerUpPoints: eq(specials.runnerUpTeamId, real.runnerUpTeamId) ? rules.runnerUp : 0,
+    thirdPoints: eq(specials.thirdTeamId, real.thirdTeamId) ? rules.third : 0,
     topScorerPoints: normalize(specials.topScorerName) === normalize(real.topScorerName) && normalize(real.topScorerName) !== '' ? rules.topScorer : 0,
     mvpPoints: normalize(specials.mvpName) === normalize(real.mvpName) && normalize(real.mvpName) !== '' ? rules.mvp : 0,
-    revelationPoints: specials.revelationTeamId === real.revelationTeamId ? rules.revelation : 0,
-    championPhase2Points: specials.championPhase2TeamId === real.championTeamId ? rules.championPhase2 : 0,
+    revelationPoints: eq(specials.revelationTeamId, real.revelationTeamId) ? rules.revelation : 0,
+    championPhase2Points: eq(specials.championPhase2TeamId, real.championTeamId) ? rules.championPhase2 : 0,
   };
 }
