@@ -152,17 +152,41 @@ adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
     // If marking as best third, auto-set position 3 if not already set
     const autoPosition = realBestThird === true ? { realFinalPosition: 3 } : {};
 
+    // Resolve effective position after auto-position override
+    const effectivePos = realFinalPosition ?? (autoPosition as any).realFinalPosition;
+
+    // Auto-derive realClassified from position when not explicitly sent:
+    // positions 1-3 = classified, position 4 = not classified
+    let derivedClassified: boolean | undefined;
+    if (realClassified !== undefined) {
+      derivedClassified = realClassified;
+    } else if (effectivePos !== undefined) {
+      derivedClassified = effectivePos <= 3;
+    }
+
     const team = await prisma.team.update({
       where: { id: req.params.id as string },
       data: {
         ...autoPosition,
         ...(realFinalPosition !== undefined && { realFinalPosition }),
-        ...(realClassified !== undefined && { realClassified }),
+        ...(derivedClassified !== undefined && { realClassified: derivedClassified }),
         ...(realBestThird !== undefined && { realBestThird }),
       },
     });
     await recalculateAll();
     res.json(team);
+  } catch (err) { next(err); }
+});
+
+// Toggle manual lock on a match (prevents predictions even before 1h cutoff)
+adminRouter.patch('/matches/:id/lock', async (req, res, next) => {
+  try {
+    const match = await prisma.match.findUniqueOrThrow({ where: { id: req.params.id as string } });
+    const updated = await prisma.match.update({
+      where: { id: match.id },
+      data: { manuallyLocked: !match.manuallyLocked },
+    });
+    res.json(updated);
   } catch (err) { next(err); }
 });
 

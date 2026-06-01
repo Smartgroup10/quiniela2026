@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { Card, Button, Select, Switch, Tag, message, Segmented, Typography, Space, Popconfirm } from 'antd';
-import { SaveOutlined, CheckCircleOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons';
+import { SaveOutlined, CheckCircleOutlined, ReloadOutlined, WarningOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { matchesApi } from '../../api/matches';
 import { teamsApi, type Team } from '../../api/teams';
 import { adminApi } from '../../api/admin';
@@ -41,6 +41,8 @@ const MatchResultRow = memo(function MatchResultRow({
   const awayRef = useRef<HTMLInputElement>(null);
   const [winnerTeamId, setWinnerTeamId] = useState<string | null>(match.winnerTeamId);
   const [wentToPenalties, setWentToPenalties] = useState(match.wentToPenalties);
+  const [locked, setLocked] = useState(match.manuallyLocked ?? false);
+  const [locking, setLocking] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(match.status === 'FINISHED');
@@ -57,6 +59,19 @@ const MatchResultRow = memo(function MatchResultRow({
       homeGoals: h !== '' && h != null ? parseInt(h) : null,
       awayGoals: a !== '' && a != null ? parseInt(a) : null,
     };
+  };
+
+  const handleToggleLock = async () => {
+    setLocking(true);
+    try {
+      const { data } = await adminApi.toggleMatchLock(match.id);
+      setLocked(data.manuallyLocked);
+      message.success(data.manuallyLocked ? 'Partido bloqueado' : 'Partido desbloqueado');
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al cambiar bloqueo');
+    } finally {
+      setLocking(false);
+    }
   };
 
   const handleSave = async () => {
@@ -166,6 +181,16 @@ const MatchResultRow = memo(function MatchResultRow({
       ) : isFinished ? (
         <Tag color="green" icon={<CheckCircleOutlined />}>Cargado</Tag>
       ) : null}
+
+      <Button
+        size="small"
+        type={locked ? 'primary' : 'default'}
+        danger={locked}
+        icon={locked ? <LockOutlined /> : <UnlockOutlined />}
+        onClick={handleToggleLock}
+        loading={locking}
+        title={locked ? 'Desbloquear partido' : 'Bloquear partido'}
+      />
     </div>
   );
 });

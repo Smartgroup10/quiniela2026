@@ -410,7 +410,7 @@ export default function Dashboard() {
               Puntos
             </span>
             <span className="mono" style={{ fontWeight: 700, fontSize: 18, color: V.fg0 }}>
-              {user?.totalPoints || 0}{' '}
+              {data.currentUser?.totalPoints || 0}{' '}
               <span style={{ color: V.fg3, fontWeight: 500, fontSize: 12 }}>pts</span>
             </span>
           </div>
@@ -500,7 +500,7 @@ export default function Dashboard() {
             Desglose de puntos
           </div>
           {POINT_CATEGORIES.map((cat) => {
-            const pts = (user as any)?.[cat.key] || 0;
+            const pts = (data.currentUser as any)?.[cat.key] || 0;
             return (
               <div key={cat.key} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',

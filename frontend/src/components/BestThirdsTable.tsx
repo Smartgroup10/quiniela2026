@@ -392,7 +392,7 @@ export default function BestThirdsTable({ teams, matches, matchPredictions, manu
         size="small"
         bordered
         onRow={(record) => ({
-          style: record.isTied ? { backgroundColor: '#fffbe6' } : undefined,
+          style: record.isTied ? { backgroundColor: 'rgba(212,169,60,0.12)' } : undefined,
         })}
       />
     </div>

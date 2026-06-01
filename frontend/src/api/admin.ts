@@ -73,6 +73,8 @@ export const adminApi = {
   // Resultados de partidos
   setMatchResult: (matchId: string, data: MatchResultData) =>
     api.patch(`/admin/matches/${matchId}/result`, data),
+  toggleMatchLock: (matchId: string) =>
+    api.patch<{ id: string; manuallyLocked: boolean }>(`/admin/matches/${matchId}/lock`),
 
   // Resultados de grupos
   setTeamGroupResult: (teamId: string, data: TeamGroupResultData) =>

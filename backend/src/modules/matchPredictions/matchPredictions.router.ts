@@ -32,6 +32,11 @@ matchPredictionsRouter.put('/:matchId', requireAuth, phaseGuard(['PHASE1_OPEN'])
     const match = await prisma.match.findUnique({ where: { id: matchId } });
     if (!match || match.stage !== 'GROUP') throw new ValidationError('Partido de grupo no encontrado');
 
+    // Block predictions if manually locked by admin
+    if (match.manuallyLocked) {
+      throw new ValidationError('Este partido ha sido bloqueado por el administrador');
+    }
+
     // Block predictions 1 hour before kickoff
     const msUntilKickoff = new Date(match.kickoffAt).getTime() - Date.now();
     if (msUntilKickoff < 60 * 60 * 1000) {
@@ -80,20 +85,20 @@ matchPredictionsRouter.put('/group/:groupKey', requireAuth, phaseGuard(['PHASE1_
       }
     }
 
-    // Block predictions 1 hour before kickoff (per match)
+    // Block predictions for locked matches (manual or 1h before kickoff)
     const matchMap = new Map(groupMatches.map((m) => [m.id, m]));
     const now = Date.now();
-    for (const p of predictions) {
+    const filteredPredictions = predictions.filter((p) => {
       const m = matchMap.get(p.matchId)!;
+      if (m.manuallyLocked) return false;
       const msUntilKickoff = new Date(m.kickoffAt).getTime() - now;
-      if (msUntilKickoff < 60 * 60 * 1000) {
-        throw new ValidationError(`Las predicciones se bloquean 1 hora antes del inicio del partido`);
-      }
-    }
+      if (msUntilKickoff < 60 * 60 * 1000) return false;
+      return true;
+    });
 
-    // Upsert all predictions
+    // Upsert all predictions (skip locked)
     const results = [];
-    for (const p of predictions) {
+    for (const p of filteredPredictions) {
       const pred = await prisma.matchPrediction.upsert({
         where: { userId_matchId: { userId, matchId: p.matchId } },
         create: { userId, matchId: p.matchId, homeGoals: p.homeGoals, awayGoals: p.awayGoals },

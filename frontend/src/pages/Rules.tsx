@@ -11,6 +11,7 @@ const V = {
   green: 'var(--green)', greenSoft: 'var(--green-soft)', greenLine: 'var(--green-line)',
   amber: 'var(--amber)',
   blue: 'var(--blue)',
+  red: 'var(--red)',
 };
 
 interface RuleRow {
@@ -172,6 +173,19 @@ export default function Rules() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Important notice */}
+      <div style={{
+        background: 'rgba(230,57,70,0.10)',
+        border: '1px solid rgba(230,57,70,0.30)',
+        borderRadius: 12, padding: '14px 20px', marginBottom: 24,
+        display: 'flex', alignItems: 'flex-start', gap: 12,
+      }}>
+        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>⚠️</span>
+        <p style={{ margin: 0, fontSize: 13, color: V.fg0, lineHeight: 1.6 }}>
+          <strong style={{ color: V.red }}>Importante:</strong> Las reglas son definitivas y no se cambiarán una vez iniciado el torneo. Cualquier duda, preguntar antes del inicio.
+        </p>
       </div>
 
       {/* Rules grid */}

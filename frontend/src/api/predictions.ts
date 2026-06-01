@@ -61,6 +61,7 @@ export interface MatchInfo {
   awayGoals: number | null;
   winnerTeamId: string | null;
   wentToPenalties: boolean;
+  manuallyLocked: boolean;
 }
 
 export const predictionsApi = {

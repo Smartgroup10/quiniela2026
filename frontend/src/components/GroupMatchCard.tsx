@@ -30,7 +30,7 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
 
   const ONE_HOUR = 60 * 60 * 1000;
   const lockedMatchIds = new Set(
-    matches.filter((m) => new Date(m.kickoffAt).getTime() - now < ONE_HOUR).map((m) => m.id),
+    matches.filter((m) => m.manuallyLocked || new Date(m.kickoffAt).getTime() - now < ONE_HOUR).map((m) => m.id),
   );
 
   const teamMap = new Map(teams.map((t) => [t.id, t]));
@@ -203,7 +203,7 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
                   fontSize: 11, color: '#D4A93C', marginTop: 2, paddingLeft: 8,
                 }}>
                   <LockOutlined style={{ fontSize: 10 }} />
-                  Bloqueado — partido en menos de 1h
+                  {match.manuallyLocked ? 'Bloqueado por admin' : 'Bloqueado — partido en menos de 1h'}
                 </div>
               )}
             </div>

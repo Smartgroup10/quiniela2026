@@ -136,6 +136,7 @@ model Match {
   winnerTeamId    String?
   wentToPenalties Boolean  @default(false)
   status          String   @default("SCHEDULED") // SCHEDULED | LIVE | FINISHED | CANCELLED
+  manuallyLocked  Boolean  @default(false)
 
   matchPredictions   MatchPrediction[]
   bracketPredictions BracketPrediction[]
