@@ -109,6 +109,26 @@ export default function Rules() {
         </p>
       </div>
 
+      {/* Aviso importante */}
+      <div style={{
+        background: 'rgba(220, 53, 69, 0.08)',
+        border: `1px solid ${V.red}`,
+        borderLeft: `4px solid ${V.red}`,
+        borderRadius: 10,
+        padding: '14px 18px',
+        marginBottom: 24,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 12,
+      }}>
+        <span style={{ fontSize: 20, lineHeight: 1 }}>⚠️</span>
+        <div style={{ fontSize: 14, color: V.red, fontWeight: 500, lineHeight: 1.5 }}>
+          <strong style={{ fontWeight: 700 }}>IMPORTANTE:</strong>{' '}
+          Por favor revisa después de cada resultado que la asignación de puntos sea la correcta.
+          En el caso de detectar un error por favor contacta con Rafa al WhatsApp.
+        </div>
+      </div>
+
       {/* Phases explanation */}
       <div style={{
         background: V.bg1, border: `1px solid ${V.line}`,

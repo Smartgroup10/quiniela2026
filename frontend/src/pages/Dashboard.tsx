@@ -109,13 +109,31 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    dashboardApi.get().then((res) => {
-      setData(res.data);
-      if (res.data.tournament && res.data.scoringConfig) {
-        setTournament(res.data.tournament, res.data.scoringConfig);
-      }
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    let cancelled = false;
+
+    const fetchData = () => {
+      dashboardApi.get().then((res) => {
+        if (cancelled) return;
+        setData(res.data);
+        if (res.data.tournament && res.data.scoringConfig) {
+          setTournament(res.data.tournament, res.data.scoringConfig);
+        }
+        setLoading(false);
+      }).catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 60_000);
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchData(); };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   const t = data?.tournament;
