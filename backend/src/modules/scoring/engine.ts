@@ -36,9 +36,10 @@ export function scoreGroupPrediction(
 
     if (real.finalPosition === predictedPos) {
       pts += rules.groupExactPosition; // 2 pts
-    } else if (real.classified && predictedPos <= 2) {
-      // +1 solo si predijiste el equipo en top 2 (1º o 2º) y realmente clasifica.
-      // Poner un equipo clasificado en 3º o 4º = 0 pts (fallaste por demasiado).
+    } else if (real.finalPosition <= 2 && predictedPos <= 2) {
+      // +1 solo si la inversión es dentro del top 2 (1º <-> 2º).
+      // OJO: NO usamos `real.classified` porque incluye a los mejores
+      // terceros (clasifican a octavos sin ser top-2 del grupo).
       pts += rules.groupClassifiedOtherPos; // 1 pt
     }
   });
