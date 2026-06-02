@@ -31,6 +31,7 @@ interface Props {
   manualOverrides?: Map<string, boolean>; // groupKey -> willPass
   onManualOverride?: (groupKey: string, willPass: boolean) => void;
   disabled?: boolean;
+  pointsByGroup?: Map<string, number>; // groupKey -> pointsEarned by user prediction
 }
 
 const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
@@ -164,7 +165,7 @@ function detectTieAtBoundary(
   return { tiedGroupKeys: new Set(), availableSlots: 0 };
 }
 
-export default function BestThirdsTable({ teams, matches, matchPredictions, manualOverrides, onManualOverride, disabled }: Props) {
+export default function BestThirdsTable({ teams, matches, matchPredictions, manualOverrides, onManualOverride, disabled, pointsByGroup }: Props) {
   const [savingGroup, setSavingGroup] = useState<string | null>(null);
 
   const teamsByGroup = new Map<string, Team[]>();
@@ -251,6 +252,11 @@ export default function BestThirdsTable({ teams, matches, matchPredictions, manu
   const completeCount = thirds.filter((t) => t.hasData).length;
   const manuallySelectedCount = thirds.filter((t) => t.isTied && t.manuallySelected === true).length;
 
+  const myPointsTotal = pointsByGroup
+    ? Array.from(pointsByGroup.values()).reduce((a, b) => a + b, 0)
+    : 0;
+  const hasAnyEarnedPoints = myPointsTotal > 0;
+
   const handleToggle = async (groupKey: string, checked: boolean) => {
     if (!onManualOverride) return;
 
@@ -311,6 +317,17 @@ export default function BestThirdsTable({ teams, matches, matchPredictions, manu
       width: 50,
       render: (record: ThirdTeamInfo) => record.hasData ? record.goalsFor : '—',
     },
+    ...(pointsByGroup ? [{
+      title: 'Tus pts',
+      key: 'myPoints',
+      width: 80,
+      render: (record: ThirdTeamInfo) => {
+        const pts = pointsByGroup.get(record.groupKey) ?? 0;
+        return pts > 0
+          ? <Tag color="success" style={{ fontWeight: 700 }}>+{pts}</Tag>
+          : <Typography.Text type="secondary">—</Typography.Text>;
+      },
+    }] : []),
     {
       title: 'Clasifica',
       key: 'qualifies',
@@ -354,6 +371,11 @@ export default function BestThirdsTable({ teams, matches, matchPredictions, manu
           {completeCount >= 8 && (
             <Tag color={qualifiedCount === 8 ? 'success' : 'processing'}>
               {qualifiedCount}/8 clasifican
+            </Tag>
+          )}
+          {hasAnyEarnedPoints && (
+            <Tag color="gold" style={{ fontWeight: 700 }}>
+              {myPointsTotal} pts ganados
             </Tag>
           )}
         </span>

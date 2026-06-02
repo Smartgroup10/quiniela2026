@@ -17,6 +17,7 @@ export default function Phase1() {
   const [matchPredictions, setMatchPredictions] = useState<Map<string, { homeGoals: number; awayGoals: number }>>(new Map());
   const [specials, setSpecials] = useState<SpecialPrediction | null>(null);
   const [bestThirdOverrides, setBestThirdOverrides] = useState<Map<string, boolean>>(new Map());
+  const [bestThirdPoints, setBestThirdPoints] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const { tournament, setTournament } = useTournamentStore();
   const user = useAuthStore((s) => s.user);
@@ -41,12 +42,15 @@ export default function Phase1() {
       }
       setMatchPredictions(predMap);
 
-      // Build best third overrides map
+      // Build best third overrides + points maps
       const overridesMap = new Map<string, boolean>();
+      const pointsMap = new Map<string, number>();
       for (const bt of bestThirdsRes.data) {
         overridesMap.set(bt.groupKey, bt.willPass);
+        pointsMap.set(bt.groupKey, bt.pointsEarned);
       }
       setBestThirdOverrides(overridesMap);
+      setBestThirdPoints(pointsMap);
 
       setSpecials(specialsRes.data);
       setTournament(tournamentRes.data.tournament, tournamentRes.data.scoringConfig);
@@ -156,6 +160,7 @@ export default function Phase1() {
         manualOverrides={bestThirdOverrides}
         onManualOverride={handleBestThirdOverride}
         disabled={disabled}
+        pointsByGroup={bestThirdPoints}
       />
 
       <Divider />
