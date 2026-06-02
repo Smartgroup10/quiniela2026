@@ -239,7 +239,7 @@ export default function Rules() {
           title="Mejores terceros"
           icon="🥉"
           rows={[
-            { label: 'Tercero clasificado correcto', points: sc?.bestThirdCorrect ?? 2, desc: 'Acertaste si el 3ro del grupo pasa o no a la siguiente ronda' },
+            { label: 'Tercero que clasifica acertado', points: sc?.bestThirdCorrect ?? 2, desc: 'Marcaste "Sí pasa" y tu 3º quedó entre los 8 mejores terceros. Marcar "No pasa" acertado NO da puntos.' },
           ]}
         />
 
@@ -248,12 +248,12 @@ export default function Rules() {
           title="Predicciones especiales"
           icon="🌟"
           rows={[
-            { label: 'Campeón', points: sc?.champion ?? 10, desc: 'Acertaste al ganador del Mundial' },
-            { label: 'Subcampeón', points: sc?.runnerUp ?? 6, desc: 'Acertaste al finalista' },
-            { label: 'Tercer puesto', points: sc?.third ?? 4, desc: 'Acertaste al tercer lugar' },
-            { label: 'Goleador', points: sc?.topScorer ?? 5, desc: 'Acertaste al máximo goleador' },
-            { label: 'MVP', points: sc?.mvp ?? 3, desc: 'Acertaste al mejor jugador del torneo' },
-            { label: 'Revelación', points: sc?.revelation ?? 3, desc: 'Acertaste al equipo revelación' },
+            { label: 'Campeón', points: sc?.champion ?? 12, desc: 'Acertaste al ganador del Mundial' },
+            { label: 'Subcampeón', points: sc?.runnerUp ?? 8, desc: 'Acertaste al finalista' },
+            { label: 'Tercer puesto', points: sc?.third ?? 5, desc: 'Acertaste al tercer lugar' },
+            { label: 'Goleador', points: sc?.topScorer ?? 6, desc: 'Acertaste al máximo goleador' },
+            { label: 'MVP', points: sc?.mvp ?? 4, desc: 'Acertaste al mejor jugador del torneo' },
+            { label: 'Revelación', points: sc?.revelation ?? 4, desc: 'Acertaste al equipo revelación' },
           ]}
         />
 
@@ -263,8 +263,8 @@ export default function Rules() {
           icon="🏆"
           rows={[
             { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza' },
-            { label: 'Resultado exacto', points: sc?.knockoutExactScore ?? 2, desc: 'Acertaste el marcador del cruce' },
-            { label: 'Penales', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus: acertaste que se fue a penales' },
+            { label: 'Marcador exacto (90 min)', points: sc?.knockoutExactScore ?? 3, desc: 'Acertaste el marcador del cruce. Se acumula con el ganador.' },
+            { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si aciertas quién gana en la tanda de penaltis' },
             { label: 'Campeón (Fase 2)', points: sc?.championPhase2 ?? 8, desc: 'Predicción de campeón en Fase 2 (menos puntos que en Fase 1)' },
           ]}
         />
