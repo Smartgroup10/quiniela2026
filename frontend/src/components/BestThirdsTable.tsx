@@ -365,22 +365,26 @@ export default function BestThirdsTable({ teams, matches, matchPredictions, manu
       {hasTie && (
         <Alert
           type="warning"
-          icon={<WarningOutlined />}
+          icon={<WarningOutlined style={{ color: '#d46b08' }} />}
           showIcon
-          style={{ marginBottom: 12 }}
-          message="Empate entre mejores terceros"
+          style={{
+            marginBottom: 12,
+            background: '#fffbe6',
+            border: '1px solid #ffe58f',
+          }}
+          message={<span style={{ color: '#874d00', fontWeight: 600 }}>Empate entre mejores terceros</span>}
           description={
-            <>
+            <span style={{ color: '#5c3a00' }}>
               Hay <strong>{tiedGroupKeys.size} equipos</strong> empatados en puntos, diferencia de goles y goles a favor
               para <strong>{availableSlots} {availableSlots === 1 ? 'plaza' : 'plazas'}</strong> disponible{availableSlots === 1 ? '' : 's'}.
               {' '}Selecciona manualmente cual{availableSlots === 1 ? '' : 'es'} clasifica{availableSlots === 1 ? '' : 'n'} usando
               los interruptores de la columna "Clasifica".
               {manuallySelectedCount < availableSlots && (
-                <span style={{ display: 'block', marginTop: 4, color: '#d46b08' }}>
+                <span style={{ display: 'block', marginTop: 4, color: '#a8400a', fontWeight: 600 }}>
                   Faltan {availableSlots - manuallySelectedCount} por seleccionar.
                 </span>
               )}
-            </>
+            </span>
           }
         />
       )}
