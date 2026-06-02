@@ -36,7 +36,9 @@ export function scoreGroupPrediction(
 
     if (real.finalPosition === predictedPos) {
       pts += rules.groupExactPosition; // 2 pts
-    } else if (real.classified) {
+    } else if (real.classified && predictedPos <= 2) {
+      // +1 solo si predijiste el equipo en top 2 (1º o 2º) y realmente clasifica.
+      // Poner un equipo clasificado en 3º o 4º = 0 pts (fallaste por demasiado).
       pts += rules.groupClassifiedOtherPos; // 1 pt
     }
   });

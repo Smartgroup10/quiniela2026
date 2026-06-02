@@ -230,7 +230,7 @@ export default function Rules() {
           icon="📊"
           rows={[
             { label: 'Posición exacta', points: sc?.groupExactPosition ?? 2, desc: 'El equipo quedó justo en la posición que dijiste' },
-            { label: 'Clasificado en otra posición', points: sc?.groupClassifiedOtherPos ?? 1, desc: 'El equipo clasificó pero en otra posición' },
+            { label: 'Clasificado invertido (1º↔2º)', points: sc?.groupClassifiedOtherPos ?? 1, desc: 'Pusiste el equipo en 1º o 2º pero quedó en la otra. Si lo pusiste en 3º/4º y clasifica, no da puntos.' },
           ]}
         />
 
