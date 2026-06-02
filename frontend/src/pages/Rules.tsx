@@ -109,6 +109,27 @@ export default function Rules() {
         </p>
       </div>
 
+      {/* Aviso reembolso (pre-Mundial) */}
+      <div style={{
+        background: 'rgba(212,169,60,0.10)',
+        border: `1px solid ${V.goldLine}`,
+        borderLeft: `4px solid ${V.gold}`,
+        borderRadius: 10,
+        padding: '14px 18px',
+        marginBottom: 16,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 12,
+      }}>
+        <span style={{ fontSize: 20, lineHeight: 1 }}>📜</span>
+        <div style={{ fontSize: 14, color: V.fg0, fontWeight: 500, lineHeight: 1.55 }}>
+          <strong style={{ fontWeight: 700, color: V.gold2 }}>Antes de nada, lee las reglas.</strong>{' '}
+          Quien no esté de acuerdo, se le devolverá el dinero siempre que el Mundial
+          aún no haya comenzado. Una vez iniciado el Mundial,{' '}
+          <strong style={{ color: V.gold2 }}>no habrá reembolsos</strong>.
+        </div>
+      </div>
+
       {/* Aviso importante */}
       <div style={{
         background: 'rgba(220, 53, 69, 0.08)',
