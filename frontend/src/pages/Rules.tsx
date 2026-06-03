@@ -272,8 +272,8 @@ export default function Rules() {
             { label: 'Campeón', points: sc?.champion ?? 12, desc: 'Acertaste al ganador del Mundial' },
             { label: 'Subcampeón', points: sc?.runnerUp ?? 8, desc: 'Acertaste al finalista' },
             { label: 'Tercer puesto', points: sc?.third ?? 5, desc: 'Acertaste al tercer lugar' },
-            { label: 'Goleador', points: sc?.topScorer ?? 6, desc: 'Acertaste al máximo goleador' },
-            { label: 'MVP', points: sc?.mvp ?? 4, desc: 'Acertaste al mejor jugador del torneo' },
+            { label: 'Goleador', points: sc?.topScorer ?? 6, desc: 'Acertaste al máximo goleador. Escribe SOLO el apellido (ej: Mbappé).' },
+            { label: 'MVP', points: sc?.mvp ?? 4, desc: 'Acertaste al mejor jugador del torneo. Escribe SOLO el apellido (ej: Messi).' },
             { label: 'Revelación', points: sc?.revelation ?? 4, desc: 'Acertaste al equipo revelación' },
           ]}
         />

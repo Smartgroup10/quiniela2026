@@ -73,9 +73,25 @@ export default function SpecialsForm({ teams, specials, disabled, onSaved }: Pro
         </span>
       }
     >
-      <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+      <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
         Estos pronosticos se bloquean al arrancar el Mundial.
       </Typography.Text>
+      <div style={{
+        background: 'rgba(230,57,70,0.10)',
+        border: '1px solid rgba(230,57,70,0.35)',
+        borderLeft: '4px solid #E63946',
+        borderRadius: 8,
+        padding: '10px 14px',
+        marginBottom: 16,
+        fontSize: 13,
+        color: '#7a1a23',
+        lineHeight: 1.5,
+      }}>
+        <strong style={{ color: '#b3001b' }}>Importante:</strong>{' '}
+        En los campos <strong>Maximo goleador</strong> y <strong>MVP</strong> escribe
+        <strong> solo el apellido</strong> del jugador (ej: <em>Mbappé</em>, <em>Messi</em>).
+        Si escribes el nombre completo el sistema no lo reconocera como acierto.
+      </div>
       <Form form={form} layout="vertical" disabled={disabled}>
         <Row gutter={16}>
           <Col xs={24} md={8}>
@@ -115,12 +131,12 @@ export default function SpecialsForm({ teams, specials, disabled, onSaved }: Pro
         <Row gutter={16}>
           <Col xs={24} md={8}>
             <Form.Item name="topScorerName" label={<PointLabel name="Maximo goleador" maxPts={sc?.topScorer} pts={specials?.topScorerPoints} />}>
-              <Input placeholder="Nombre del jugador" />
+              <Input placeholder="Solo apellido (ej: Mbappé)" />
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
             <Form.Item name="mvpName" label={<PointLabel name="MVP" maxPts={sc?.mvp} pts={specials?.mvpPoints} />}>
-              <Input placeholder="Nombre del jugador" />
+              <Input placeholder="Solo apellido (ej: Messi)" />
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
