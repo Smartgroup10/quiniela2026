@@ -43,24 +43,31 @@ groupPredictionsRouter.put('/:groupKey', requireAuth, phaseGuard(['PHASE1_OPEN']
   } catch (err) { next(err); }
 });
 
-// View others' predictions
-// - Admins / league_admins: ven la comparativa siempre (para QA y testing).
-// - Usuarios normales: solo cuando la fase 1 esté cerrada (no hay que poder
-//   copiarse mientras la fase está abierta).
+// View predictions for a group.
+// - Admins / league_admins: ven la comparativa completa siempre (QA).
+// - Usuarios normales:
+//     * Si la fase 1 está cerrada → ven todas las predicciones.
+//     * Si la fase 1 está abierta → ven SOLO la suya (para revisar sus
+//       propios puntos por grupo sin poder copiar a los demás).
 groupPredictionsRouter.get('/group/:key', requireAuth, async (req, res, next) => {
   try {
+    const userId = req.user!.sub;
     const role = req.user?.role;
     const isAdmin = role === 'ADMIN' || role === 'LEAGUE_ADMIN';
+    const groupKey = (req.params.key as string).toUpperCase();
 
+    let restrictToSelf = false;
     if (!isAdmin) {
       const tournament = await prisma.tournament.findFirst();
       if (!tournament || tournament.status === 'PHASE1_OPEN' || tournament.status === 'SETUP') {
-        throw new ForbiddenError('Los pronósticos de otros se muestran cuando la fase cierre');
+        restrictToSelf = true;
       }
     }
 
     const predictions = await prisma.groupPrediction.findMany({
-      where: { groupKey: (req.params.key as string).toUpperCase() },
+      where: restrictToSelf
+        ? { groupKey, userId }
+        : { groupKey },
       include: { user: { select: { id: true, name: true, alias: true } } },
     });
     res.json(predictions);

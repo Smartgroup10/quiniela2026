@@ -47,11 +47,15 @@ export default function GroupComparison({ teams }: Props) {
     <div style={{ marginTop: 24 }}>
       <h2 style={{
         fontFamily: "'Space Grotesk', sans-serif",
-        fontSize: 20, fontWeight: 700, color: V.fg0, margin: '0 0 16px',
+        fontSize: 20, fontWeight: 700, color: V.fg0, margin: '0 0 4px',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <TeamOutlined style={{ fontSize: 18 }} /> Comparativa de Grupos
       </h2>
+      <p style={{ fontSize: 12, color: V.fg2, margin: '0 0 16px' }}>
+        Mientras la fase 1 está abierta solo ves tu propia predicción y tus puntos
+        por grupo. La comparativa con los demás se abre al cerrar la fase.
+      </p>
 
       <Segmented
         options={GROUPS}
