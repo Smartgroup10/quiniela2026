@@ -71,7 +71,7 @@ export default function AdminDashboardTab() {
       ]);
       setStats(statsRes.data);
       setTournamentLocal(tournamentRes.data.tournament);
-      setTournament(tournamentRes.data.tournament, tournamentRes.data.scoringConfig);
+      setTournament(tournamentRes.data.tournament, tournamentRes.data.scoringConfig, tournamentRes.data.predictionLockBypassUntil);
     } catch {
       message.error('Error al cargar datos');
     } finally {

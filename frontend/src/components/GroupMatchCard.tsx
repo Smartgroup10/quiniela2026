@@ -6,6 +6,7 @@ import type { MatchInfo, MatchPrediction } from '../api/predictions';
 import { predictionsApi } from '../api/predictions';
 import TeamFlag from './TeamFlag';
 import DerivedStandingsTable from './DerivedStandingsTable';
+import { useTournamentStore } from '../stores/tournamentStore';
 
 interface Props {
   groupKey: string;
@@ -29,11 +30,14 @@ export default function GroupMatchCard({ groupKey, teams, matches, predictions, 
   }, []);
 
   const ONE_HOUR = 60 * 60 * 1000;
+  const bypassUntilStr = useTournamentStore((s) => s.predictionLockBypassUntil);
+  const bypassUntil = bypassUntilStr ? new Date(bypassUntilStr).getTime() : 0;
+  const kickoffLockActive = now >= bypassUntil;
   const lockedMatchIds = new Set(
     matches.filter((m) =>
       m.status === 'FINISHED' || m.status === 'LIVE' ||
       m.manuallyLocked ||
-      new Date(m.kickoffAt).getTime() - now < ONE_HOUR
+      (kickoffLockActive && new Date(m.kickoffAt).getTime() - now < ONE_HOUR)
     ).map((m) => m.id),
   );
 

@@ -42,10 +42,15 @@ matchPredictionsRouter.put('/:matchId', requireAuth, phaseGuard(['PHASE1_OPEN'])
       throw new ValidationError('Este partido ha sido bloqueado por el administrador');
     }
 
-    // Block predictions 1 hour before kickoff
-    const msUntilKickoff = new Date(match.kickoffAt).getTime() - Date.now();
-    if (msUntilKickoff < 60 * 60 * 1000) {
-      throw new ValidationError('Las predicciones se bloquean 1 hora antes del inicio del partido');
+    // Block predictions 1 hour before kickoff (bypass-able via PREDICTION_LOCK_BYPASS_UNTIL)
+    const bypassUntil = process.env.PREDICTION_LOCK_BYPASS_UNTIL
+      ? new Date(process.env.PREDICTION_LOCK_BYPASS_UNTIL).getTime()
+      : 0;
+    if (Date.now() >= bypassUntil) {
+      const msUntilKickoff = new Date(match.kickoffAt).getTime() - Date.now();
+      if (msUntilKickoff < 60 * 60 * 1000) {
+        throw new ValidationError('Las predicciones se bloquean 1 hora antes del inicio del partido');
+      }
     }
 
     const prediction = await prisma.matchPrediction.upsert({
@@ -93,12 +98,18 @@ matchPredictionsRouter.put('/group/:groupKey', requireAuth, phaseGuard(['PHASE1_
     // Block predictions for locked matches (manual or 1h before kickoff)
     const matchMap = new Map(groupMatches.map((m) => [m.id, m]));
     const now = Date.now();
+    const bypassUntil = process.env.PREDICTION_LOCK_BYPASS_UNTIL
+      ? new Date(process.env.PREDICTION_LOCK_BYPASS_UNTIL).getTime()
+      : 0;
+    const skipKickoffLock = now < bypassUntil;
     const filteredPredictions = predictions.filter((p) => {
       const m = matchMap.get(p.matchId)!;
       if (m.status === 'FINISHED' || m.status === 'LIVE') return false;
       if (m.manuallyLocked) return false;
-      const msUntilKickoff = new Date(m.kickoffAt).getTime() - now;
-      if (msUntilKickoff < 60 * 60 * 1000) return false;
+      if (!skipKickoffLock) {
+        const msUntilKickoff = new Date(m.kickoffAt).getTime() - now;
+        if (msUntilKickoff < 60 * 60 * 1000) return false;
+      }
       return true;
     });
 

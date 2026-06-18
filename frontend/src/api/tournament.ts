@@ -38,7 +38,7 @@ export interface ScoringConfig {
 }
 
 export const tournamentApi = {
-  get: () => api.get<{ tournament: Tournament; scoringConfig: ScoringConfig }>('/tournament'),
+  get: () => api.get<{ tournament: Tournament; scoringConfig: ScoringConfig; predictionLockBypassUntil: string | null }>('/tournament'),
   update: (data: Partial<Tournament>) => api.patch('/tournament', data),
   updateScoring: (data: Partial<ScoringConfig>) => api.patch('/tournament/scoring', data),
 };

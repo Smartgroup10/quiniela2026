@@ -9,7 +9,8 @@ tournamentRouter.get('/', async (_req, res, next) => {
   try {
     const tournament = await prisma.tournament.findFirst();
     const scoringConfig = await prisma.scoringConfig.findFirst();
-    res.json({ tournament, scoringConfig });
+    const predictionLockBypassUntil = process.env.PREDICTION_LOCK_BYPASS_UNTIL || null;
+    res.json({ tournament, scoringConfig, predictionLockBypassUntil });
   } catch (err) { next(err); }
 });
 

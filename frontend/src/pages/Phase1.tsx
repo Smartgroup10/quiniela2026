@@ -53,7 +53,7 @@ export default function Phase1() {
       setBestThirdPoints(pointsMap);
 
       setSpecials(specialsRes.data);
-      setTournament(tournamentRes.data.tournament, tournamentRes.data.scoringConfig);
+      setTournament(tournamentRes.data.tournament, tournamentRes.data.scoringConfig, tournamentRes.data.predictionLockBypassUntil);
     } catch (err) {
       console.error('Error loading data', err);
     } finally {
