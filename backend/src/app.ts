@@ -15,6 +15,7 @@ import { footballApiRouter } from './modules/footballApi/footballApi.router.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.router.js';
 import { leaguesRouter } from './modules/leagues/leagues.router.js';
 import { resultsRouter } from './modules/results/results.router.js';
+import { bracketPredictionsRouter } from './modules/bracketPredictions/bracketPredictions.router.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/leagues', leaguesRouter);
 app.use('/api/results', resultsRouter);
+app.use('/api/bracket-predictions', bracketPredictionsRouter);
 app.use('/api/admin/football', footballApiRouter);
 
 // Health check

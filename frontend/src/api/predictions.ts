@@ -93,4 +93,36 @@ export const predictionsApi = {
 
   // Matches
   getGroupMatches: () => api.get<MatchInfo[]>('/matches', { params: { stage: 'GROUP' } }),
+
+  // Bracket (Fase 2 - eliminatorias)
+  getMyBracket: () => api.get<BracketMatchWithPrediction[]>('/bracket-predictions/me'),
+  saveBracketPrediction: (matchId: string, data: BracketPredictionInput) =>
+    api.put<BracketPrediction>(`/bracket-predictions/${matchId}`, data),
 };
+
+export interface BracketPrediction {
+  id: string;
+  userId: string;
+  matchId: string;
+  predictedHomeTeamId: string | null;
+  predictedAwayTeamId: string | null;
+  homeGoals: number;
+  awayGoals: number;
+  winnerTeamId: string;
+  wentToPenalties: boolean;
+  pointsEarned: number;
+}
+
+export interface BracketPredictionInput {
+  predictedHomeTeamId?: string | null;
+  predictedAwayTeamId?: string | null;
+  homeGoals: number;
+  awayGoals: number;
+  winnerTeamId: string;
+  wentToPenalties?: boolean;
+}
+
+export interface BracketMatchWithPrediction {
+  match: MatchInfo;
+  myPrediction: BracketPrediction | null;
+}

@@ -21,6 +21,7 @@ const { Content } = Layout;
 const NAV_ITEMS = [
   { key: '/', icon: <HomeOutlined />, label: 'Inicio' },
   { key: '/phase1', icon: <TrophyOutlined />, label: 'Fase 1' },
+  { key: '/phase2', icon: <TrophyOutlined />, label: 'Fase 2' },
   { key: '/leaderboard', icon: <OrderedListOutlined />, label: 'Ranking' },
   { key: '/rules', icon: <FileTextOutlined />, label: 'Reglas' },
 ];

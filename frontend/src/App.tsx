@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Phase1 from './pages/Phase1';
+import Phase2 from './pages/Phase2';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
@@ -32,6 +33,7 @@ export default function App() {
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/phase1" element={<Phase1 />} />
+                <Route path="/phase2" element={<Phase2 />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/results" element={<Results />} />
                 <Route path="/rules" element={<Rules />} />

@@ -1,0 +1,194 @@
+import { useEffect, useState } from 'react';
+import { InputNumber, Switch, Tag, message } from 'antd';
+import { CheckCircleOutlined, LockOutlined, SaveOutlined } from '@ant-design/icons';
+import type { Team } from '../api/teams';
+import type { BracketMatchWithPrediction, BracketPrediction } from '../api/predictions';
+import { predictionsApi } from '../api/predictions';
+import TeamFlag from './TeamFlag';
+
+const V = {
+  bg1: 'var(--bg-1)', bg2: 'var(--bg-2)', bg3: 'var(--bg-3)',
+  line: 'var(--line)',
+  fg0: 'var(--fg-0)', fg1: 'var(--fg-1)', fg2: 'var(--fg-2)', fg3: 'var(--fg-3)',
+  gold: 'var(--gold)', gold2: 'var(--gold-2)',
+  green: 'var(--green)',
+};
+
+interface Props {
+  data: BracketMatchWithPrediction;
+  teamMap: Map<string, Team>;
+  canEdit: boolean;
+  onSaved: (p: BracketPrediction) => void;
+}
+
+export default function BracketMatchCard({ data, teamMap, canEdit, onSaved }: Props) {
+  const { match, myPrediction } = data;
+  const home = match.homeTeamId ? teamMap.get(match.homeTeamId) : null;
+  const away = match.awayTeamId ? teamMap.get(match.awayTeamId) : null;
+
+  const [homeGoals, setHomeGoals] = useState<number | null>(myPrediction?.homeGoals ?? null);
+  const [awayGoals, setAwayGoals] = useState<number | null>(myPrediction?.awayGoals ?? null);
+  const [winnerTeamId, setWinnerTeamId] = useState<string | null>(myPrediction?.winnerTeamId ?? null);
+  const [wentToPenalties, setWentToPenalties] = useState<boolean>(myPrediction?.wentToPenalties ?? false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setHomeGoals(myPrediction?.homeGoals ?? null);
+    setAwayGoals(myPrediction?.awayGoals ?? null);
+    setWinnerTeamId(myPrediction?.winnerTeamId ?? null);
+    setWentToPenalties(myPrediction?.wentToPenalties ?? false);
+  }, [myPrediction]);
+
+  const teamsTBD = !home || !away;
+  const matchDone = match.status === 'FINISHED' || match.status === 'LIVE';
+  const locked = match.manuallyLocked || matchDone || !canEdit;
+
+  // Auto-derivar winnerTeamId desde el marcador si los goles son distintos
+  useEffect(() => {
+    if (homeGoals == null || awayGoals == null || !home || !away) return;
+    if (homeGoals > awayGoals && winnerTeamId !== home.id) setWinnerTeamId(home.id);
+    else if (awayGoals > homeGoals && winnerTeamId !== away.id) setWinnerTeamId(away.id);
+    // si empate, dejamos winnerTeamId tal como esta (eleccion manual en penaltis)
+  }, [homeGoals, awayGoals, home, away]);
+
+  const handleSave = async () => {
+    if (homeGoals == null || awayGoals == null || !winnerTeamId) {
+      message.warning('Completa marcador y ganador');
+      return;
+    }
+    if (homeGoals === awayGoals && !wentToPenalties) {
+      message.warning('En eliminatorias no hay empate. Activa "Penaltis" y elige ganador.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data: pred } = await predictionsApi.saveBracketPrediction(match.id, {
+        predictedHomeTeamId: home?.id ?? null,
+        predictedAwayTeamId: away?.id ?? null,
+        homeGoals,
+        awayGoals,
+        winnerTeamId,
+        wentToPenalties,
+      });
+      onSaved(pred);
+      message.success('Prediccion guardada');
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al guardar');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div style={{
+      background: V.bg1, border: `1px solid ${V.line}`,
+      borderRadius: 12, padding: 12, fontSize: 13,
+      display: 'flex', flexDirection: 'column', gap: 10,
+      opacity: teamsTBD ? 0.55 : 1,
+    }}>
+      {/* Header: round + matchNumber + status */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        fontSize: 10, color: V.fg2,
+        textTransform: 'uppercase', letterSpacing: '0.08em',
+        fontFamily: "'JetBrains Mono', monospace",
+      }}>
+        <span>#{match.matchNumber}</span>
+        <span>{new Date(match.kickoffAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}</span>
+        {locked && <LockOutlined style={{ fontSize: 10 }} />}
+        {myPrediction && myPrediction.pointsEarned > 0 && (
+          <Tag color="gold" style={{ margin: 0, fontSize: 9, padding: '0 6px' }}>+{myPrediction.pointsEarned}</Tag>
+        )}
+      </div>
+
+      {/* Teams + score inputs */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 8 }}>
+        <button
+          type="button"
+          disabled={teamsTBD || locked || homeGoals == null || awayGoals == null || homeGoals !== awayGoals}
+          onClick={() => home && setWinnerTeamId(home.id)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: winnerTeamId === home?.id ? 'rgba(212,169,60,0.18)' : 'transparent',
+            border: `1px solid ${winnerTeamId === home?.id ? V.gold : V.line}`,
+            borderRadius: 8, padding: '6px 8px',
+            color: V.fg0, fontSize: 13, fontWeight: 600,
+            cursor: !teamsTBD && !locked && homeGoals === awayGoals ? 'pointer' : 'default',
+            textAlign: 'left',
+          }}
+        >
+          {home ? <><TeamFlag code={home.code} size={18} /> {home.code}</> : <span style={{ color: V.fg3 }}>TBD</span>}
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <InputNumber
+            min={0} max={20}
+            value={homeGoals}
+            onChange={(v) => setHomeGoals(v == null ? null : Number(v))}
+            disabled={locked || teamsTBD}
+            size="small"
+            style={{ width: 50 }}
+            controls={false}
+          />
+          <span style={{ color: V.fg3, fontWeight: 600 }}>-</span>
+          <InputNumber
+            min={0} max={20}
+            value={awayGoals}
+            onChange={(v) => setAwayGoals(v == null ? null : Number(v))}
+            disabled={locked || teamsTBD}
+            size="small"
+            style={{ width: 50 }}
+            controls={false}
+          />
+        </div>
+
+        <button
+          type="button"
+          disabled={teamsTBD || locked || homeGoals == null || awayGoals == null || homeGoals !== awayGoals}
+          onClick={() => away && setWinnerTeamId(away.id)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end',
+            background: winnerTeamId === away?.id ? 'rgba(212,169,60,0.18)' : 'transparent',
+            border: `1px solid ${winnerTeamId === away?.id ? V.gold : V.line}`,
+            borderRadius: 8, padding: '6px 8px',
+            color: V.fg0, fontSize: 13, fontWeight: 600,
+            cursor: !teamsTBD && !locked && homeGoals === awayGoals ? 'pointer' : 'default',
+            textAlign: 'right',
+          }}
+        >
+          {away ? <>{away.code} <TeamFlag code={away.code} size={18} /></> : <span style={{ color: V.fg3 }}>TBD</span>}
+        </button>
+      </div>
+
+      {/* Penaltis toggle + save */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: V.fg1, fontSize: 12 }}>
+          <Switch
+            size="small"
+            checked={wentToPenalties}
+            onChange={setWentToPenalties}
+            disabled={locked || teamsTBD}
+          />
+          Penaltis
+        </label>
+        {!locked && !teamsTBD && (
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            style={{
+              background: V.gold, color: '#0a0d14', border: 'none',
+              borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 700,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <SaveOutlined /> {saving ? 'Guardando…' : 'Guardar'}
+          </button>
+        )}
+        {myPrediction && !saving && (
+          <CheckCircleOutlined style={{ color: V.green, fontSize: 14 }} />
+        )}
+      </div>
+    </div>
+  );
+}
