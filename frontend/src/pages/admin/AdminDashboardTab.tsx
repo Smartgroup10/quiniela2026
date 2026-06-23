@@ -9,6 +9,8 @@ import {
   CloudDownloadOutlined,
   LockOutlined,
   UnlockOutlined,
+  TrophyOutlined,
+  ExperimentOutlined,
 } from '@ant-design/icons';
 import { adminApi, type AdminStats, type SyncResult } from '../../api/admin';
 import { tournamentApi, type Tournament, type ScoringConfig } from '../../api/tournament';
@@ -150,6 +152,29 @@ export default function AdminDashboardTab() {
     }
   };
 
+  const [generatingBracket, setGeneratingBracket] = useState(false);
+  const handleGenerateBracket = (withTestData: boolean) => {
+    Modal.confirm({
+      title: withTestData ? 'Generar bracket de pruebas' : 'Generar bracket de eliminatorias',
+      content: withTestData
+        ? 'Crea 32 partidos KO con equipos asignados a partir del orden alfabetico dentro de cada grupo. Borra los partidos KO existentes y sus predicciones. Solo para QA.'
+        : 'Crea 32 partidos KO. Si los equipos clasificados ya estan marcados en BD, se asignan al R32. Borra los partidos KO existentes y sus predicciones.',
+      okText: withTestData ? 'Generar (test)' : 'Generar',
+      okType: 'danger',
+      onOk: async () => {
+        setGeneratingBracket(true);
+        try {
+          const { data } = await adminApi.generateKnockoutBracket({ withTestData });
+          message.success(`${data.created} partidos creados (${data.teamsAssigned} equipos asignados a R32). ${data.deleted ? `${data.deleted} partidos KO previos borrados.` : ''}`);
+        } catch (err: any) {
+          message.error(err.response?.data?.error || 'Error al generar bracket');
+        } finally {
+          setGeneratingBracket(false);
+        }
+      },
+    });
+  };
+
   const statusCfg = tournament ? STATUS_CONFIG[tournament.status] : null;
   const transition = tournament ? TRANSITIONS[tournament.status] : null;
 
@@ -236,6 +261,26 @@ export default function AdminDashboardTab() {
             icon={<CloudDownloadOutlined />}
           >
             Sincronizar Resultados
+          </Button>
+
+          <Button
+            size="large"
+            type="default"
+            onClick={() => handleGenerateBracket(false)}
+            loading={generatingBracket}
+            icon={<TrophyOutlined />}
+          >
+            Generar Bracket Fase 2
+          </Button>
+
+          <Button
+            size="large"
+            type="dashed"
+            onClick={() => handleGenerateBracket(true)}
+            loading={generatingBracket}
+            icon={<ExperimentOutlined />}
+          >
+            Generar Bracket (test)
           </Button>
         </Space>
 

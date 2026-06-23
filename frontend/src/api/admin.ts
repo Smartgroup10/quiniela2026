@@ -100,4 +100,14 @@ export const adminApi = {
 
   // Sync resultados desde API externa
   syncResults: () => api.post<SyncResult>('/admin/football/sync-results'),
+
+  // Generar bracket de eliminatorias (Fase 2)
+  generateKnockoutBracket: (data: { startKickoff?: string; withTestData?: boolean }) =>
+    api.post<{
+      created: number;
+      deleted: number;
+      matchesByRound: Record<string, number>;
+      teamsAssigned: number;
+      testDataUsed: boolean;
+    }>('/admin/generate-knockout-bracket', data),
 };

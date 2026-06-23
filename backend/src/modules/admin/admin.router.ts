@@ -6,6 +6,7 @@ import { adminOnly, superAdminOnly } from '../../middleware/adminOnly.js';
 import { recalculateAll } from '../scoring/recalculate.js';
 import { createUserSchema } from './admin.schemas.js';
 import * as adminService from './admin.service.js';
+import { generateKnockoutBracket } from './bracketGen.js';
 
 export const adminRouter = Router();
 
@@ -129,6 +130,26 @@ adminRouter.post('/open-phase2', superAdminOnly, async (_req, res, next) => {
       data: { status: 'PHASE2_OPEN', phase2OpensAt: new Date() },
     });
     res.json(updated);
+  } catch (err) { next(err); }
+});
+
+// Generar bracket de eliminatorias (32 partidos: R32, R16, QF, SF, 3o, Final).
+// Body opcional: { startKickoff: ISO string, withTestData: boolean }.
+//   - startKickoff: dia base para R32 (R16 +4 dias, QF +8, SF +12, 3o +15, FINAL +16).
+//     Por defecto, manana 18:00 UTC.
+//   - withTestData: si true, asigna equipos R32 a partir del orden alfabetico
+//     dentro de cada grupo (no requiere fase 1 cerrada). Util para QA.
+adminRouter.post('/generate-knockout-bracket', superAdminOnly, async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    const startKickoff = body.startKickoff ? new Date(body.startKickoff) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+    if (isNaN(startKickoff.getTime())) {
+      res.status(400).json({ error: 'startKickoff invalido' });
+      return;
+    }
+    const withTestData = body.withTestData === true;
+    const result = await generateKnockoutBracket({ startKickoff, withTestData });
+    res.json(result);
   } catch (err) { next(err); }
 });
 
