@@ -27,6 +27,109 @@ export interface RealStandingsResult {
   r32SeededCount: number;
 }
 
+export interface SeedBracketResult {
+  groupsCompleted: number;
+  bestThirdsComputed: boolean;
+  r32SeededCount: number;
+  r32SlotsPending: number;
+}
+
+/**
+ * Siembra el R32 leyendo standings AL VUELO desde matches FINISHED,
+ * sin escribir realFinalPosition/realClassified/realBestThird en Team.
+ * Esto evita que cambien los puntos de Fase 1 hasta que el admin
+ * decida marcar los grupos oficialmente.
+ */
+export async function seedR32FromFinishedGroups(): Promise<SeedBracketResult> {
+  const teams = await prisma.team.findMany({ where: { groupKey: { not: null } } });
+  const matches = await prisma.match.findMany({ where: { stage: 'GROUP' } });
+
+  const teamById = new Map(teams.map(t => [t.id, t]));
+  const teamsByGroup = new Map<string, typeof teams>();
+  for (const t of teams) {
+    const arr = teamsByGroup.get(t.groupKey!) || [];
+    arr.push(t);
+    teamsByGroup.set(t.groupKey!, arr);
+  }
+
+  const groupStandings = new Map<string, Standing[]>();
+  let groupsCompleted = 0;
+
+  for (const g of GROUPS) {
+    const gTeams = teamsByGroup.get(g) || [];
+    if (gTeams.length === 0) continue;
+    const gMatches = matches.filter(m => {
+      const home = teamById.get(m.homeTeamId || '');
+      return home?.groupKey === g;
+    });
+    const finished = gMatches.filter(m => m.status === 'FINISHED');
+    if (finished.length !== 6 || gMatches.length !== 6) continue;
+
+    const standings = computeGroupStandings(gTeams.map(t => t.id), finished as any);
+    groupStandings.set(g, standings);
+    groupsCompleted++;
+  }
+
+  // Mejores terceros solo cuando los 12 grupos terminen
+  let bestThirds: ThirdEntry[] = [];
+  const bestThirdsComputed = groupsCompleted === 12;
+  if (bestThirdsComputed) {
+    const thirds: ThirdEntry[] = [];
+    for (const g of GROUPS) {
+      const st = groupStandings.get(g);
+      if (!st || st.length < 3) continue;
+      thirds.push({ ...st[2], groupKey: g });
+    }
+    thirds.sort((a, b) =>
+      b.points - a.points ||
+      b.goalDifference - a.goalDifference ||
+      b.goalsFor - a.goalsFor,
+    );
+    bestThirds = thirds.slice(0, 8);
+  }
+
+  // Construir lista de 32 slots: [1A..1L, 2A..2L, 3T1..3T8]
+  // Cualquier slot que no este definido aun queda en null.
+  const slots: (string | null)[] = new Array(32).fill(null);
+  for (let i = 0; i < 12; i++) {
+    const st = groupStandings.get(GROUPS[i]);
+    if (st && st[0]) slots[i] = st[0].teamId;
+    if (st && st[1]) slots[12 + i] = st[1].teamId;
+  }
+  for (let i = 0; i < bestThirds.length; i++) {
+    slots[24 + i] = bestThirds[i].teamId;
+  }
+
+  // Aplicar a partidos R32 existentes
+  const r32 = await prisma.match.findMany({
+    where: { stage: 'KNOCKOUT', round: 'R32' },
+    orderBy: { matchNumber: 'asc' },
+  });
+
+  let r32SeededCount = 0;
+  let r32SlotsPending = 0;
+  for (let i = 0; i < Math.min(r32.length, 16); i++) {
+    const home = slots[i * 2];
+    const away = slots[i * 2 + 1];
+    const update: any = {};
+    if (home && r32[i].homeTeamId !== home) update.homeTeamId = home;
+    if (away && r32[i].awayTeamId !== away) update.awayTeamId = away;
+    if (!home) r32SlotsPending++;
+    if (!away) r32SlotsPending++;
+    if (Object.keys(update).length > 0) {
+      await prisma.match.update({ where: { id: r32[i].id }, data: update });
+      r32SeededCount += Object.keys(update).length;
+    }
+  }
+
+  return {
+    groupsCompleted,
+    bestThirdsComputed,
+    r32SeededCount,
+    r32SlotsPending,
+  };
+}
+
 export async function updateRealStandings(): Promise<RealStandingsResult> {
   const teams = await prisma.team.findMany({ where: { groupKey: { not: null } } });
   const matches = await prisma.match.findMany({ where: { stage: 'GROUP' } });

@@ -112,6 +112,7 @@ export const adminApi = {
     }>('/admin/generate-knockout-bracket', data),
 
   // Calcular standings reales (top 2 + 8 mejores terceros) y seedear R32 si procede
+  // ⚠️ Tras esto los usuarios reciben puntos de Fase 1 por grupos terminados
   updateRealStandings: () =>
     api.post<{
       groupsProcessed: number;
@@ -121,4 +122,14 @@ export const adminApi = {
       bestThirdTeamIds: string[];
       r32SeededCount: number;
     }>('/admin/update-real-standings'),
+
+  // Sembrar el R32 con los equipos clasificados de los grupos terminados
+  // SIN tocar realFinalPosition (no afecta scoring de Fase 1)
+  seedR32: () =>
+    api.post<{
+      groupsCompleted: number;
+      bestThirdsComputed: boolean;
+      r32SeededCount: number;
+      r32SlotsPending: number;
+    }>('/admin/seed-r32'),
 };

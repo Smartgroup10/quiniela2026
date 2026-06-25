@@ -153,22 +153,22 @@ export default function AdminDashboardTab() {
     }
   };
 
-  const [updatingStandings, setUpdatingStandings] = useState(false);
-  const handleUpdateStandings = async () => {
-    setUpdatingStandings(true);
+  const [seedingR32, setSeedingR32] = useState(false);
+  const handleSeedR32 = async () => {
+    setSeedingR32(true);
     try {
-      const { data } = await adminApi.updateRealStandings();
+      const { data } = await adminApi.seedR32();
       const parts = [
-        `${data.groupsCompleted}/${data.groupsProcessed} grupos completos`,
-        `${data.teamsAssignedPosition} equipos posicionados`,
+        `${data.groupsCompleted}/12 grupos terminados`,
+        `${data.r32SeededCount} huecos R32 asignados`,
       ];
-      if (data.bestThirdsComputed) parts.push(`mejores terceros calculados`);
-      if (data.r32SeededCount > 0) parts.push(`R32 sembrado (${data.r32SeededCount} equipos)`);
+      if (data.r32SlotsPending > 0) parts.push(`${data.r32SlotsPending} huecos pendientes`);
+      if (data.bestThirdsComputed) parts.push(`mejores terceros listos`);
       message.success(parts.join(' · '));
     } catch (err: any) {
-      message.error(err.response?.data?.error || 'Error al actualizar clasificaciones');
+      message.error(err.response?.data?.error || 'Error al sembrar R32');
     } finally {
-      setUpdatingStandings(false);
+      setSeedingR32(false);
     }
   };
 
@@ -286,11 +286,11 @@ export default function AdminDashboardTab() {
           <Button
             size="large"
             type="default"
-            onClick={handleUpdateStandings}
-            loading={updatingStandings}
+            onClick={handleSeedR32}
+            loading={seedingR32}
             icon={<OrderedListOutlined />}
           >
-            Actualizar Clasificaciones
+            Cargar Equipos en Bracket
           </Button>
 
           <Button

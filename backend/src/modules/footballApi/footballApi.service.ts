@@ -1,7 +1,7 @@
 import { env } from '../../config/env.js';
 import prisma from '../../lib/prisma.js';
 import { recalculateAll } from '../scoring/recalculate.js';
-import { updateRealStandings } from '../admin/realStandings.js';
+import { seedR32FromFinishedGroups } from '../admin/realStandings.js';
 
 const API_BASE = 'https://api.football-data.org/v4';
 
@@ -137,9 +137,11 @@ export async function syncResults(): Promise<SyncResult> {
     });
   }
 
-  // Recalculate scores + update real standings if anything changed
+  // Recalculate scores if anything changed.
+  // Tambien sembramos R32 (sin marcar realFinalPosition para no impactar
+  // los puntos de Fase 1 automaticamente; el admin decide cuando hacerlo).
   if (result.matchesUpdated > 0) {
-    await updateRealStandings();
+    await seedR32FromFinishedGroups();
     await recalculateAll();
   }
 
