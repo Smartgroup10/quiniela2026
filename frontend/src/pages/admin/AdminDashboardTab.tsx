@@ -11,6 +11,7 @@ import {
   UnlockOutlined,
   TrophyOutlined,
   ExperimentOutlined,
+  OrderedListOutlined,
 } from '@ant-design/icons';
 import { adminApi, type AdminStats, type SyncResult } from '../../api/admin';
 import { tournamentApi, type Tournament, type ScoringConfig } from '../../api/tournament';
@@ -152,6 +153,25 @@ export default function AdminDashboardTab() {
     }
   };
 
+  const [updatingStandings, setUpdatingStandings] = useState(false);
+  const handleUpdateStandings = async () => {
+    setUpdatingStandings(true);
+    try {
+      const { data } = await adminApi.updateRealStandings();
+      const parts = [
+        `${data.groupsCompleted}/${data.groupsProcessed} grupos completos`,
+        `${data.teamsAssignedPosition} equipos posicionados`,
+      ];
+      if (data.bestThirdsComputed) parts.push(`mejores terceros calculados`);
+      if (data.r32SeededCount > 0) parts.push(`R32 sembrado (${data.r32SeededCount} equipos)`);
+      message.success(parts.join(' · '));
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al actualizar clasificaciones');
+    } finally {
+      setUpdatingStandings(false);
+    }
+  };
+
   const [generatingBracket, setGeneratingBracket] = useState(false);
   const handleGenerateBracket = (withTestData: boolean) => {
     Modal.confirm({
@@ -261,6 +281,16 @@ export default function AdminDashboardTab() {
             icon={<CloudDownloadOutlined />}
           >
             Sincronizar Resultados
+          </Button>
+
+          <Button
+            size="large"
+            type="default"
+            onClick={handleUpdateStandings}
+            loading={updatingStandings}
+            icon={<OrderedListOutlined />}
+          >
+            Actualizar Clasificaciones
           </Button>
 
           <Button

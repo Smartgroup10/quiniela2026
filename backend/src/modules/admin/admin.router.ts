@@ -7,6 +7,7 @@ import { recalculateAll } from '../scoring/recalculate.js';
 import { createUserSchema } from './admin.schemas.js';
 import * as adminService from './admin.service.js';
 import { generateKnockoutBracket } from './bracketGen.js';
+import { updateRealStandings } from './realStandings.js';
 
 export const adminRouter = Router();
 
@@ -130,6 +131,14 @@ adminRouter.post('/open-phase2', superAdminOnly, async (_req, res, next) => {
       data: { status: 'PHASE2_OPEN', phase2OpensAt: new Date() },
     });
     res.json(updated);
+  } catch (err) { next(err); }
+});
+
+// Calcular standings reales (top 2 + 8 mejores terceros) y seedear R32.
+adminRouter.post('/update-real-standings', superAdminOnly, async (_req, res, next) => {
+  try {
+    const result = await updateRealStandings();
+    res.json(result);
   } catch (err) { next(err); }
 });
 

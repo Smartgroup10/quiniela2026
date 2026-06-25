@@ -110,4 +110,15 @@ export const adminApi = {
       teamsAssigned: number;
       testDataUsed: boolean;
     }>('/admin/generate-knockout-bracket', data),
+
+  // Calcular standings reales (top 2 + 8 mejores terceros) y seedear R32 si procede
+  updateRealStandings: () =>
+    api.post<{
+      groupsProcessed: number;
+      groupsCompleted: number;
+      teamsAssignedPosition: number;
+      bestThirdsComputed: boolean;
+      bestThirdTeamIds: string[];
+      r32SeededCount: number;
+    }>('/admin/update-real-standings'),
 };

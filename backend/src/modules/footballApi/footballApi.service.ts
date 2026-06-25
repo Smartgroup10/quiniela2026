@@ -1,6 +1,7 @@
 import { env } from '../../config/env.js';
 import prisma from '../../lib/prisma.js';
 import { recalculateAll } from '../scoring/recalculate.js';
+import { updateRealStandings } from '../admin/realStandings.js';
 
 const API_BASE = 'https://api.football-data.org/v4';
 
@@ -136,8 +137,9 @@ export async function syncResults(): Promise<SyncResult> {
     });
   }
 
-  // Recalculate scores if anything changed
+  // Recalculate scores + update real standings if anything changed
   if (result.matchesUpdated > 0) {
+    await updateRealStandings();
     await recalculateAll();
   }
 
