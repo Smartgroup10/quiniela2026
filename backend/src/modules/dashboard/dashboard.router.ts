@@ -19,6 +19,7 @@ dashboardRouter.get('/', requireAuth, async (req, res, next) => {
       totalGroupMatches,
       teams,
       allGroupMatches,
+      myBracketPredictions,
     ] = await Promise.all([
       prisma.tournament.findFirst(),
       prisma.scoringConfig.findFirst(),
@@ -47,6 +48,7 @@ dashboardRouter.get('/', requireAuth, async (req, res, next) => {
       prisma.match.count({ where: { stage: 'GROUP' } }),
       prisma.team.findMany(),
       prisma.match.findMany({ where: { stage: 'GROUP' }, select: { id: true, homeTeamId: true } }),
+      prisma.bracketPrediction.findMany({ where: { userId } }),
     ]);
 
     // User rank
@@ -54,22 +56,29 @@ dashboardRouter.get('/', requireAuth, async (req, res, next) => {
     const currentUser = allUsers.find((u) => u.id === userId) || null;
     const top5 = allUsers.slice(0, 5);
 
-    // Map user predictions by matchId for recent results
-    const predMap = new Map(myMatchPredictions.map((p) => [p.matchId, p]));
+    // Map user predictions by matchId for recent results.
+    // Fase 1 (grupo) → matchPrediction.  Fase 2 (KO) → bracketPrediction.
+    const matchPredMap = new Map(myMatchPredictions.map((p) => [p.matchId, p]));
+    const bracketPredMap = new Map(myBracketPredictions.map((p) => [p.matchId, p]));
 
     // Build team map for team info
     const teamMap = new Map(teams.map((t) => [t.id, { id: t.id, code: t.code, name: t.name, flagUrl: t.flagUrl }]));
 
-    const recentResults = recentFinished.map((m) => ({
-      ...m,
-      homeTeam: teamMap.get(m.homeTeamId || '') || null,
-      awayTeam: teamMap.get(m.awayTeamId || '') || null,
-      myPrediction: predMap.get(m.id) ? {
-        homeGoals: predMap.get(m.id)!.homeGoals,
-        awayGoals: predMap.get(m.id)!.awayGoals,
-        pointsEarned: predMap.get(m.id)!.pointsEarned,
-      } : null,
-    }));
+    const recentResults = recentFinished.map((m) => {
+      const mp = matchPredMap.get(m.id);
+      const bp = bracketPredMap.get(m.id);
+      const myPrediction = mp
+        ? { homeGoals: mp.homeGoals, awayGoals: mp.awayGoals, pointsEarned: mp.pointsEarned }
+        : bp
+        ? { homeGoals: bp.homeGoals, awayGoals: bp.awayGoals, pointsEarned: bp.pointsEarned }
+        : null;
+      return {
+        ...m,
+        homeTeam: teamMap.get(m.homeTeamId || '') || null,
+        awayTeam: teamMap.get(m.awayTeamId || '') || null,
+        myPrediction,
+      };
+    });
 
     const upcoming = upcomingMatches.map((m) => ({
       ...m,
