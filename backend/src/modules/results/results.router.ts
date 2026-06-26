@@ -16,27 +16,35 @@ resultsRouter.get('/', requireAuth, async (req, res, next) => {
     const teams = await prisma.team.findMany();
     const teamMap = new Map(teams.map((t) => [t.id, { id: t.id, code: t.code, name: t.name, flagUrl: t.flagUrl }]));
 
-    const predictions = await prisma.matchPrediction.findMany({
-      where: { userId, matchId: { in: matches.map((m) => m.id) } },
-    });
-    const predMap = new Map(predictions.map((p) => [p.matchId, p]));
+    const matchIds = matches.map((m) => m.id);
+    const [matchPreds, bracketPreds] = await Promise.all([
+      prisma.matchPrediction.findMany({ where: { userId, matchId: { in: matchIds } } }),
+      prisma.bracketPrediction.findMany({ where: { userId, matchId: { in: matchIds } } }),
+    ]);
+    const matchPredMap = new Map(matchPreds.map((p) => [p.matchId, p]));
+    const bracketPredMap = new Map(bracketPreds.map((p) => [p.matchId, p]));
 
-    const results = matches.map((m) => ({
-      id: m.id,
-      stage: m.stage,
-      round: m.round,
-      matchNumber: m.matchNumber,
-      kickoffAt: m.kickoffAt,
-      homeTeam: teamMap.get(m.homeTeamId || '') || null,
-      awayTeam: teamMap.get(m.awayTeamId || '') || null,
-      homeGoals: m.homeGoals,
-      awayGoals: m.awayGoals,
-      myPrediction: predMap.get(m.id) ? {
-        homeGoals: predMap.get(m.id)!.homeGoals,
-        awayGoals: predMap.get(m.id)!.awayGoals,
-        pointsEarned: predMap.get(m.id)!.pointsEarned,
-      } : null,
-    }));
+    const results = matches.map((m) => {
+      const mp = matchPredMap.get(m.id);
+      const bp = bracketPredMap.get(m.id);
+      const myPrediction = mp
+        ? { homeGoals: mp.homeGoals, awayGoals: mp.awayGoals, pointsEarned: mp.pointsEarned }
+        : bp
+        ? { homeGoals: bp.homeGoals, awayGoals: bp.awayGoals, pointsEarned: bp.pointsEarned }
+        : null;
+      return {
+        id: m.id,
+        stage: m.stage,
+        round: m.round,
+        matchNumber: m.matchNumber,
+        kickoffAt: m.kickoffAt,
+        homeTeam: teamMap.get(m.homeTeamId || '') || null,
+        awayTeam: teamMap.get(m.awayTeamId || '') || null,
+        homeGoals: m.homeGoals,
+        awayGoals: m.awayGoals,
+        myPrediction,
+      };
+    });
 
     res.json(results);
   } catch (err) { next(err); }
