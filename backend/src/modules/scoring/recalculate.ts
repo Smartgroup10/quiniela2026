@@ -7,8 +7,10 @@ export async function recalculateAll() {
 
   const tournament = await prisma.tournament.findFirst();
   const teams = await prisma.team.findMany();
+  // Calculamos puntos para TODOS los usuarios, incluido admin.
+  // El leaderboard sigue excluyendo admins; aqui los incluimos para
+  // que el admin pueda ver sus puntos al hacer QA del flujo.
   const users = await prisma.user.findMany({
-    where: { role: { not: 'ADMIN' } },
     include: {
       matchPredictions: { include: { match: true } },
       groupPredictions: true,
@@ -112,14 +114,25 @@ export async function recalculateAll() {
     // Score bracket predictions
     for (const bp of user.bracketPredictions) {
       const match = bp.match;
-      if (match.status !== 'FINISHED' || match.homeGoals == null || match.awayGoals == null || !match.winnerTeamId) continue;
+      if (match.status !== 'FINISHED' || match.homeGoals == null || match.awayGoals == null) continue;
+
+      // Auto-derivar winnerTeamId si no esta seteado:
+      //  - si marcador no empate -> ganador segun goles
+      //  - si empate Y no fue a penaltis -> sin ganador (saltar)
+      //  - si empate Y fue a penaltis pero winnerTeamId null -> sin ganador (saltar)
+      let realWinnerTeamId = match.winnerTeamId;
+      if (!realWinnerTeamId) {
+        if (match.homeGoals > match.awayGoals) realWinnerTeamId = match.homeTeamId;
+        else if (match.awayGoals > match.homeGoals) realWinnerTeamId = match.awayTeamId;
+      }
+      if (!realWinnerTeamId || !match.homeTeamId || !match.awayTeamId) continue;
 
       const pts = scoreBracketMatch(bp, {
-        homeTeamId: match.homeTeamId!,
-        awayTeamId: match.awayTeamId!,
+        homeTeamId: match.homeTeamId,
+        awayTeamId: match.awayTeamId,
         homeGoals: match.homeGoals,
         awayGoals: match.awayGoals,
-        winnerTeamId: match.winnerTeamId,
+        winnerTeamId: realWinnerTeamId,
         wentToPenalties: match.wentToPenalties,
       }, config);
 

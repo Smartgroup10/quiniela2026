@@ -252,12 +252,25 @@ adminRouter.patch('/matches/:id/lock', async (req, res, next) => {
 adminRouter.patch('/matches/:id/result', async (req, res, next) => {
   try {
     const { homeGoals, awayGoals, winnerTeamId, wentToPenalties } = req.body;
+    const matchId = req.params.id as string;
+
+    // Auto-derivar winnerTeamId si no se envia y el marcador no es empate.
+    // Solo aplica a partidos KO; para grupos no hace falta winnerTeamId.
+    let derivedWinnerTeamId: string | null = winnerTeamId ?? null;
+    if (!derivedWinnerTeamId && typeof homeGoals === 'number' && typeof awayGoals === 'number') {
+      const existing = await prisma.match.findUnique({ where: { id: matchId } });
+      if (existing?.stage === 'KNOCKOUT') {
+        if (homeGoals > awayGoals) derivedWinnerTeamId = existing.homeTeamId;
+        else if (awayGoals > homeGoals) derivedWinnerTeamId = existing.awayTeamId;
+      }
+    }
+
     const match = await prisma.match.update({
-      where: { id: req.params.id as string },
+      where: { id: matchId },
       data: {
         homeGoals,
         awayGoals,
-        winnerTeamId,
+        winnerTeamId: derivedWinnerTeamId,
         wentToPenalties: wentToPenalties || false,
         status: 'FINISHED',
       },
