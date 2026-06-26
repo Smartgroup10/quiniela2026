@@ -284,7 +284,7 @@ export default function Rules() {
           icon="🏆"
           rows={[
             { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza' },
-            { label: 'Marcador exacto (90 min)', points: sc?.knockoutExactScore ?? 3, desc: 'Acertaste el marcador del cruce. Se acumula con el ganador.' },
+            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'Acertaste el marcador final del cruce: al cabo de los 90 minutos si hubo ganador, o al cabo de los 120 minutos si fue a prórroga. Se acumula con el ganador.' },
             { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si aciertas quién gana en la tanda de penaltis' },
             { label: 'Campeón (Fase 2)', points: sc?.championPhase2 ?? 8, desc: 'Predicción de campeón en Fase 2 (menos puntos que en Fase 1)' },
           ]}

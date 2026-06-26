@@ -98,14 +98,19 @@ export function scoreBracketMatch(
       (pred.predictedHomeTeamId === real.awayTeamId && pred.predictedAwayTeamId === real.homeTeamId));
 
   if (pairingMatches) {
-    // 3. Exact score at 120'
+    // 3. Marcador exacto al final del partido reglamentario:
+    //    - 90 minutos si hubo ganador en tiempo regular
+    //    - 120 minutos si fue a prorroga (con o sin penaltis)
+    //    Football-data.org devuelve fullTime = goles al final del tiempo
+    //    correspondiente (excluye penaltis), que es lo que guardamos en
+    //    match.homeGoals/awayGoals.
     const exactScore =
       (pred.homeGoals === real.homeGoals && pred.awayGoals === real.awayGoals) ||
       (pred.predictedHomeTeamId === real.awayTeamId &&
         pred.homeGoals === real.awayGoals &&
         pred.awayGoals === real.homeGoals);
 
-    if (exactScore) pts += rules.knockoutExactScore; // +2
+    if (exactScore) pts += rules.knockoutExactScore;
   }
 
   // 4. Penalties bonus

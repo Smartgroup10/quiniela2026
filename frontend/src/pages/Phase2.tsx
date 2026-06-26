@@ -119,6 +119,9 @@ export default function Phase2() {
           <p style={{ color: V.fg2, margin: '6px 0 0', fontSize: 14 }}>
             32 partidos desde 32avos hasta la final. Predice ganador + marcador + penaltis.
           </p>
+          <p style={{ color: V.fg2, margin: '4px 0 0', fontSize: 12, fontStyle: 'italic' }}>
+            El marcador exacto se evalúa al final del partido: 90 min si hubo ganador en tiempo regular, o 120 min si fue a prórroga.
+          </p>
         </div>
         <div style={{
           background: V.bg1, border: `1px solid ${V.line}`,
