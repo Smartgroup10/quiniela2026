@@ -153,6 +153,20 @@ export default function AdminDashboardTab() {
     }
   };
 
+  const [togglingBracket, setTogglingBracket] = useState(false);
+  const handleToggleBracketLock = async () => {
+    setTogglingBracket(true);
+    try {
+      const { data } = await adminApi.toggleBracketLock();
+      setTournamentLocal((prev) => prev ? { ...prev, bracketLocked: data.bracketLocked } : prev);
+      message.success(data.bracketLocked ? 'Bracket Fase 2 bloqueado' : 'Bracket Fase 2 desbloqueado');
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al cambiar bloqueo del bracket');
+    } finally {
+      setTogglingBracket(false);
+    }
+  };
+
   const [importingKO, setImportingKO] = useState(false);
   const handleImportKO = async () => {
     setImportingKO(true);
@@ -295,6 +309,17 @@ export default function AdminDashboardTab() {
             icon={tournament?.bonusPhase1Locked ? <LockOutlined /> : <UnlockOutlined />}
           >
             {tournament?.bonusPhase1Locked ? 'Bonus Bloqueados' : 'Bloquear Bonus F1'}
+          </Button>
+
+          <Button
+            size="large"
+            type={tournament?.bracketLocked ? 'primary' : 'default'}
+            danger={!!tournament?.bracketLocked}
+            onClick={handleToggleBracketLock}
+            loading={togglingBracket}
+            icon={tournament?.bracketLocked ? <LockOutlined /> : <UnlockOutlined />}
+          >
+            {tournament?.bracketLocked ? 'Bracket Bloqueado' : 'Bloquear Bracket F2'}
           </Button>
 
           <Button

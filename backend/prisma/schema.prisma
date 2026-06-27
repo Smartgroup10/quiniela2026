@@ -86,6 +86,7 @@ model Tournament {
   realMvpName           String?
   realRevelationTeamId  String?
   bonusPhase1Locked    Boolean  @default(false)
+  bracketLocked        Boolean  @default(false)
 }
 
 model ScoringConfig {

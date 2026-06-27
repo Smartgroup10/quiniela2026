@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spin, message } from 'antd';
 import { teamsApi, type Team } from '../api/teams';
@@ -32,8 +32,16 @@ export default function Phase2() {
   const [bracket, setBracket] = useState<BracketMatchWithPrediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [tournamentStatus, setTournamentStatus] = useState<string>('');
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'LEAGUE_ADMIN';
+
+  const scrollByRound = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    // Cada ronda ocupa ~282px (270 + gap 12). Avanza/retrocede una columna.
+    el.scrollBy({ left: dir * 282, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -194,7 +202,32 @@ export default function Phase2() {
         </div>
       ) : (
         // Layout en columnas: cada ronda una columna
+        <>
+        {/* Botones de navegacion */}
+        <div style={{
+          display: 'flex', gap: 8, marginBottom: 8, justifyContent: 'flex-end',
+        }}>
+          <button
+            type="button"
+            onClick={() => scrollByRound(-1)}
+            style={{
+              background: V.bg1, border: `1px solid ${V.line}`,
+              color: V.fg0, borderRadius: 8, padding: '6px 12px',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            }}
+          >‹ Anterior</button>
+          <button
+            type="button"
+            onClick={() => scrollByRound(1)}
+            style={{
+              background: V.bg1, border: `1px solid ${V.line}`,
+              color: V.fg0, borderRadius: 8, padding: '6px 12px',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            }}
+          >Siguiente ›</button>
+        </div>
         <div
+          ref={scrollerRef}
           style={{
             overflowX: 'auto',
             overflowY: 'visible',
@@ -259,6 +292,7 @@ export default function Phase2() {
             ))}
           </div>
         </div>
+        </>
       )}
     </div>
   );

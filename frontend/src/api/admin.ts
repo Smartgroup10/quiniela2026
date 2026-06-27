@@ -98,6 +98,9 @@ export const adminApi = {
   // Toggle bloqueo bonus fase 1
   toggleBonusLock: () => api.patch<{ bonusPhase1Locked: boolean }>('/admin/tournament/bonus-lock'),
 
+  // Toggle bloqueo bracket fase 2
+  toggleBracketLock: () => api.patch<{ bracketLocked: boolean }>('/admin/tournament/bracket-lock'),
+
   // Sync resultados desde API externa
   syncResults: () => api.post<SyncResult>('/admin/football/sync-results'),
 

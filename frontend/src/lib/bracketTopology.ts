@@ -94,20 +94,22 @@ export function deriveTeamsForMatch(
   const def = BRACKET_TREE[round]?.[index];
   if (!def) return { homeTeamId: null, awayTeamId: null };
 
+  // OJO: en R16+ usamos EXCLUSIVAMENTE las predicciones del usuario.
+  // No caemos al resultado real porque entonces, en cuanto el admin
+  // mete el resultado del Lab, los jugadores que aun no predijeron
+  // se encontrarian el cuadro pre-rellenado con los equipos reales,
+  // perdiendo el sentido del bracket personal.
   const resolveSlot = (slot: Slot): string | null => {
     const fromRound = matchesByRoundIndex(slot.round);
     const fromMatch = fromRound[slot.index];
     if (!fromMatch) return null;
     if (slot.type === 'winner') {
-      // Primero mi prediccion del ganador (si la hay)
-      if (fromMatch.myPrediction?.winnerTeamId) return fromMatch.myPrediction.winnerTeamId;
-      // Fallback al ganador real (si ya se jugo)
-      return fromMatch.winnerTeamId ?? null;
+      return fromMatch.myPrediction?.winnerTeamId ?? null;
     } else {
-      // loser: el que NO gano
-      const winner = fromMatch.myPrediction?.winnerTeamId ?? fromMatch.winnerTeamId ?? null;
-      const predHome = fromMatch.myPrediction?.predictedHomeTeamId ?? fromMatch.homeTeamId ?? null;
-      const predAway = fromMatch.myPrediction?.predictedAwayTeamId ?? fromMatch.awayTeamId ?? null;
+      // loser: el que NO gano segun MI prediccion
+      const winner = fromMatch.myPrediction?.winnerTeamId ?? null;
+      const predHome = fromMatch.myPrediction?.predictedHomeTeamId ?? null;
+      const predAway = fromMatch.myPrediction?.predictedAwayTeamId ?? null;
       if (!winner || (!predHome && !predAway)) return null;
       if (winner === predHome) return predAway;
       if (winner === predAway) return predHome;

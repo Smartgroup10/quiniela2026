@@ -62,6 +62,10 @@ bracketPredictionsRouter.put('/:matchId', requireAuth, async (req, res, next) =>
     if (!isAdmin && tournament?.status !== 'PHASE2_OPEN') {
       throw new ForbiddenError('Las predicciones de Fase 2 estan cerradas');
     }
+    // Lock manual del admin: bloquea a todos menos admin
+    if (!isAdmin && tournament?.bracketLocked) {
+      throw new ForbiddenError('El bracket ha sido bloqueado por el administrador');
+    }
 
     // 1h antes de kickoff (con bypass)
     const bypassUntil = process.env.PREDICTION_LOCK_BYPASS_UNTIL

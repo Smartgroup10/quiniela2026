@@ -199,6 +199,19 @@ adminRouter.patch('/tournament/bonus-lock', async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Toggle bracket (Fase 2) lock — bloquea PUT de bracketPredictions
+adminRouter.patch('/tournament/bracket-lock', async (_req, res, next) => {
+  try {
+    const tournament = await prisma.tournament.findFirst();
+    if (!tournament) { res.status(404).json({ error: 'Torneo no encontrado' }); return; }
+    const updated = await prisma.tournament.update({
+      where: { id: tournament.id },
+      data: { bracketLocked: !tournament.bracketLocked },
+    });
+    res.json(updated);
+  } catch (err) { next(err); }
+});
+
 // Update team group results (admin enters final positions after group stage)
 adminRouter.patch('/teams/:id/group-result', async (req, res, next) => {
   try {
