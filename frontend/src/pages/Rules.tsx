@@ -283,12 +283,54 @@ export default function Rules() {
           title="Eliminatorias"
           icon="🏆"
           rows={[
-            { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza' },
-            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'Acertaste el marcador final del cruce: al cabo de los 90 minutos si hubo ganador, o al cabo de los 120 minutos si fue a prórroga. Se acumula con el ganador.' },
-            { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si aciertas quién gana en la tanda de penaltis' },
+            { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza. Si tu ganador coincide con el real (aunque su rival no), igual cobras.' },
+            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'SOLO se evalúa si los DOS equipos del cruce coinciden con los reales. Si tu cruce era ESP vs FRA pero el real fue ESP vs ITA, el marcador no cuenta aunque coincida.' },
+            { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si tu predicción dice "fue a penaltis" Y aciertas quién gana la tanda. No exige acertar el cruce.' },
             { label: 'Campeón (Fase 2)', points: sc?.championPhase2 ?? 8, desc: 'Predicción de campeón en Fase 2 (menos puntos que en Fase 1)' },
           ]}
         />
+
+        {/* Aviso aclaratorio del cruce */}
+        <div style={{
+          background: 'rgba(212,169,60,0.10)',
+          border: `1px solid ${V.goldLine}`,
+          borderLeft: `4px solid ${V.gold}`,
+          borderRadius: 10,
+          padding: '14px 18px',
+          marginTop: 2,
+        }}>
+          <div style={{
+            fontSize: 13, fontWeight: 700, color: V.gold2,
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+            marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <span>⚠️</span> Cómo funciona el "cruce" en eliminatorias
+          </div>
+          <p style={{ margin: '0 0 10px', fontSize: 13, color: V.fg1, lineHeight: 1.5 }}>
+            En Fase 2 cada usuario construye su <strong>bracket personal</strong>: tus ganadores de
+            32avos avanzan a tus octavos, tus ganadores de octavos a tus cuartos, etc. El
+            problema es que tu cruce predicho puede no coincidir con el real.
+          </p>
+          <div style={{
+            background: V.bg1, border: `1px solid ${V.line}`,
+            borderRadius: 8, padding: '12px 14px', fontSize: 12, color: V.fg1,
+            lineHeight: 1.6,
+          }}>
+            <strong style={{ color: V.fg0 }}>Ejemplo:</strong> tu predicción en cuartos es
+            <strong> FRA vs ESP 1-1 gana FRA en penaltis</strong>. El partido real resulta ser
+            <strong> FRA vs ALE 1-1 gana FRA en penaltis</strong>.
+            <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
+              <li><strong style={{ color: V.green }}>+3</strong> ganador correcto (FRA = FRA)</li>
+              <li><strong style={{ color: V.red }}>0</strong> marcador exacto (ESP ≠ ALE → cruce distinto)</li>
+              <li><strong style={{ color: V.green }}>+1</strong> penaltis (predijiste tanda y ganador correcto)</li>
+              <li><strong style={{ color: V.gold2 }}>Total: 4 pts</strong></li>
+            </ul>
+          </div>
+          <p style={{ margin: '10px 0 0', fontSize: 12, color: V.fg2, fontStyle: 'italic' }}>
+            Resumen: el ganador y el bonus de penaltis dependen del <strong>equipo</strong>; el
+            marcador exacto depende del <strong>cruce completo</strong>.
+          </p>
+        </div>
 
         {/* Info adicional */}
         <div style={{
