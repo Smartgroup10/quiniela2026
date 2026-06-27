@@ -149,6 +149,9 @@ export default function Phase2() {
           <p style={{ color: V.fg2, margin: '4px 0 0', fontSize: 12, fontStyle: 'italic' }}>
             El marcador exacto se evalúa al final del partido: 90 min si hubo ganador en tiempo regular, o 120 min si fue a prórroga.
           </p>
+          <p style={{ color: V.fg2, margin: '4px 0 0', fontSize: 12 }}>
+            ← Arrastra o usa la rueda del ratón para ver octavos, cuartos, semifinales y final →
+          </p>
         </div>
         <div style={{
           background: V.bg1, border: `1px solid ${V.line}`,
@@ -191,11 +194,29 @@ export default function Phase2() {
         </div>
       ) : (
         // Layout en columnas: cada ronda una columna
-        <div style={{ overflowX: 'auto', paddingBottom: 16 }}>
-          <div style={{ display: 'flex', gap: 16, minWidth: 'max-content' }}>
+        <div
+          style={{
+            overflowX: 'auto',
+            overflowY: 'visible',
+            paddingBottom: 16,
+            scrollbarWidth: 'auto',
+            cursor: 'grab',
+          }}
+          onWheel={(e) => {
+            // Convierte scroll vertical de rueda en scroll horizontal si
+            // hay overflow horizontal. Permite navegar el bracket sin
+            // pulsar Shift.
+            const el = e.currentTarget;
+            if (el.scrollWidth > el.clientWidth && e.deltaY !== 0 && e.deltaX === 0) {
+              el.scrollLeft += e.deltaY;
+              e.preventDefault();
+            }
+          }}
+        >
+          <div style={{ display: 'flex', gap: 12, minWidth: 'max-content' }}>
             {ROUND_ORDER.filter(r => (byRound[r] || []).length > 0).map((round) => (
               <div key={round} style={{
-                minWidth: 280, maxWidth: 320, flex: '0 0 auto',
+                width: 240, flex: '0 0 240px',
                 display: 'flex', flexDirection: 'column', gap: 12,
               }}>
                 <div style={{
