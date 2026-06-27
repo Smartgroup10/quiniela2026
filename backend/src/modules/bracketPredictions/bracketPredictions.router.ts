@@ -81,17 +81,14 @@ bracketPredictionsRouter.put('/:matchId', requireAuth, async (req, res, next) =>
       }
     }
 
-    // Si el partido ya tiene equipos asignados (R32), forzar que predicted* coincidan
-    if (match.homeTeamId && match.awayTeamId) {
-      const validIds = new Set([match.homeTeamId, match.awayTeamId]);
-      if (data.predictedHomeTeamId && !validIds.has(data.predictedHomeTeamId)) {
-        throw new ValidationError('predictedHomeTeamId no coincide con los equipos del partido');
-      }
-      if (data.predictedAwayTeamId && !validIds.has(data.predictedAwayTeamId)) {
-        throw new ValidationError('predictedAwayTeamId no coincide con los equipos del partido');
-      }
-      if (!validIds.has(data.winnerTeamId)) {
-        throw new ValidationError('winnerTeamId no coincide con los equipos del partido');
+    // En el modelo "bracket personal" cada usuario predice toda la cadena:
+    // los equipos de R16+ derivan de SUS predicciones de R32 y pueden no
+    // coincidir con los reales. El motor de scoring ya valida pairing al
+    // calcular puntos, asi que aqui solo nos aseguramos de que
+    // winnerTeamId sea uno de los dos equipos predichos.
+    if (data.predictedHomeTeamId && data.predictedAwayTeamId) {
+      if (data.winnerTeamId !== data.predictedHomeTeamId && data.winnerTeamId !== data.predictedAwayTeamId) {
+        throw new ValidationError('winnerTeamId debe ser uno de los equipos predichos');
       }
     }
 

@@ -18,13 +18,20 @@ interface Props {
   data: BracketMatchWithPrediction;
   teamMap: Map<string, Team>;
   canEdit: boolean;
+  // En R16+: equipos derivados de mis predicciones de la ronda anterior.
+  // En R32: misma cosa que match.homeTeamId/awayTeamId.
+  derivedHomeTeamId?: string | null;
+  derivedAwayTeamId?: string | null;
   onSaved: (p: BracketPrediction) => void;
 }
 
-export default function BracketMatchCard({ data, teamMap, canEdit, onSaved }: Props) {
+export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTeamId, derivedAwayTeamId, onSaved }: Props) {
   const { match, myPrediction } = data;
-  const home = match.homeTeamId ? teamMap.get(match.homeTeamId) : null;
-  const away = match.awayTeamId ? teamMap.get(match.awayTeamId) : null;
+  // Equipos para predecir: si vienen derivados (R16+) se usan; si no, los del partido real.
+  const effectiveHomeId = derivedHomeTeamId !== undefined ? derivedHomeTeamId : match.homeTeamId;
+  const effectiveAwayId = derivedAwayTeamId !== undefined ? derivedAwayTeamId : match.awayTeamId;
+  const home = effectiveHomeId ? teamMap.get(effectiveHomeId) : null;
+  const away = effectiveAwayId ? teamMap.get(effectiveAwayId) : null;
 
   const [homeGoals, setHomeGoals] = useState<number | null>(myPrediction?.homeGoals ?? null);
   const [awayGoals, setAwayGoals] = useState<number | null>(myPrediction?.awayGoals ?? null);
@@ -63,8 +70,8 @@ export default function BracketMatchCard({ data, teamMap, canEdit, onSaved }: Pr
     setSaving(true);
     try {
       const { data: pred } = await predictionsApi.saveBracketPrediction(match.id, {
-        predictedHomeTeamId: home?.id ?? null,
-        predictedAwayTeamId: away?.id ?? null,
+        predictedHomeTeamId: effectiveHomeId ?? null,
+        predictedAwayTeamId: effectiveAwayId ?? null,
         homeGoals,
         awayGoals,
         winnerTeamId,

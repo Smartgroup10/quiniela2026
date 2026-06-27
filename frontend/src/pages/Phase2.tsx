@@ -6,6 +6,7 @@ import { predictionsApi, type BracketMatchWithPrediction, type BracketPrediction
 import { tournamentApi } from '../api/tournament';
 import { useAuthStore } from '../stores/authStore';
 import BracketMatchCard from '../components/BracketMatchCard';
+import { deriveTeamsForMatch, type BracketMatchInfo, type Round } from '../lib/bracketTopology';
 
 const V = {
   bg0: 'var(--bg-0)', bg1: 'var(--bg-1)', bg2: 'var(--bg-2)', bg3: 'var(--bg-3)',
@@ -67,6 +68,32 @@ export default function Phase2() {
     for (const r of Object.keys(map)) map[r].sort((a, b) => a.match.matchNumber - b.match.matchNumber);
     return map;
   }, [bracket]);
+
+  // Para topologia: vista compacta de cada partido (real + mi prediccion)
+  const matchesByRoundIndex = useMemo(() => {
+    const adapter = (round: Round): BracketMatchInfo[] => {
+      const list = byRound[round] || [];
+      return list.map((item, idx) => ({
+        id: item.match.id,
+        round: round,
+        index: idx,
+        homeTeamId: item.match.homeTeamId ?? null,
+        awayTeamId: item.match.awayTeamId ?? null,
+        winnerTeamId: item.match.winnerTeamId ?? null,
+        myPrediction: item.myPrediction
+          ? {
+              predictedHomeTeamId: item.myPrediction.predictedHomeTeamId,
+              predictedAwayTeamId: item.myPrediction.predictedAwayTeamId,
+              winnerTeamId: item.myPrediction.winnerTeamId,
+              homeGoals: item.myPrediction.homeGoals,
+              awayGoals: item.myPrediction.awayGoals,
+              wentToPenalties: item.myPrediction.wentToPenalties,
+            }
+          : null,
+      }));
+    };
+    return adapter;
+  }, [byRound]);
 
   const totalPoints = useMemo(
     () => bracket.reduce((acc, b) => acc + (b.myPrediction?.pointsEarned ?? 0), 0),
@@ -188,15 +215,24 @@ export default function Phase2() {
                   // Espaciado proporcional: rondas mas avanzadas tienen mas espacio entre cards
                   justifyContent: 'space-around',
                 }}>
-                  {byRound[round].map((item) => (
-                    <BracketMatchCard
-                      key={item.match.id}
-                      data={item}
-                      teamMap={teamMap}
-                      canEdit={canEdit}
-                      onSaved={(p) => handleSaved(item.match.id, p)}
-                    />
-                  ))}
+                  {byRound[round].map((item, idx) => {
+                    // En R32 los equipos vienen del partido real (BD).
+                    // En R16+ los derivamos de mis predicciones de la ronda anterior.
+                    const derived = round === 'R32'
+                      ? { homeTeamId: item.match.homeTeamId ?? null, awayTeamId: item.match.awayTeamId ?? null }
+                      : deriveTeamsForMatch(round as Round, idx, matchesByRoundIndex);
+                    return (
+                      <BracketMatchCard
+                        key={item.match.id}
+                        data={item}
+                        teamMap={teamMap}
+                        canEdit={canEdit}
+                        derivedHomeTeamId={derived.homeTeamId}
+                        derivedAwayTeamId={derived.awayTeamId}
+                        onSaved={(p) => handleSaved(item.match.id, p)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             ))}
