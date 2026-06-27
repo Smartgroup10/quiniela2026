@@ -153,6 +153,30 @@ export default function AdminDashboardTab() {
     }
   };
 
+  const [importingKO, setImportingKO] = useState(false);
+  const handleImportKO = async () => {
+    setImportingKO(true);
+    try {
+      const { data } = await adminApi.importKnockoutMatches();
+      const parts = [
+        `${data.matchesChecked} partidos KO en la API`,
+        `${data.matchesCreated} creados`,
+        `${data.matchesUpdated} actualizados`,
+      ];
+      if (data.matchesSkipped > 0) parts.push(`${data.matchesSkipped} sin cambios`);
+      if (data.unknownStages.length > 0) parts.push(`stages desconocidos: ${data.unknownStages.join(', ')}`);
+      if (data.matchesChecked === 0) {
+        message.info('La API aun no tiene partidos KO definidos.');
+      } else {
+        message.success(parts.join(' · '));
+      }
+    } catch (err: any) {
+      message.error(err.response?.data?.error || 'Error al importar partidos KO');
+    } finally {
+      setImportingKO(false);
+    }
+  };
+
   const [seedingR32, setSeedingR32] = useState(false);
   const handleSeedR32 = async () => {
     setSeedingR32(true);
@@ -281,6 +305,16 @@ export default function AdminDashboardTab() {
             icon={<CloudDownloadOutlined />}
           >
             Sincronizar Resultados
+          </Button>
+
+          <Button
+            size="large"
+            type="default"
+            onClick={handleImportKO}
+            loading={importingKO}
+            icon={<CloudDownloadOutlined />}
+          >
+            Importar Partidos KO (API)
           </Button>
 
           <Button

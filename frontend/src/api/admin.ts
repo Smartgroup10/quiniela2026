@@ -132,4 +132,16 @@ export const adminApi = {
       r32SeededCount: number;
       r32SlotsPending: number;
     }>('/admin/seed-r32'),
+
+  // Importar partidos KO desde football-data.org (fechas, sedes, equipos
+  // cuando esten definidos). Crea/actualiza, no toca resultados.
+  importKnockoutMatches: () =>
+    api.post<{
+      matchesChecked: number;
+      matchesCreated: number;
+      matchesUpdated: number;
+      matchesSkipped: number;
+      byRound: Record<string, number>;
+      unknownStages: string[];
+    }>('/admin/football/import-knockout'),
 };
