@@ -248,6 +248,75 @@ adminRouter.patch('/matches/:id/lock', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Lab Fase 2: listar todos los partidos KO con mi prediccion (si la hay)
+adminRouter.get('/ko-matches', async (req, res, next) => {
+  try {
+    const userId = req.user!.sub;
+    const matches = await prisma.match.findMany({
+      where: { stage: 'KNOCKOUT' },
+      orderBy: { matchNumber: 'asc' },
+    });
+    const predictions = await prisma.bracketPrediction.findMany({
+      where: { userId, matchId: { in: matches.map(m => m.id) } },
+    });
+    const predMap = new Map(predictions.map(p => [p.matchId, p]));
+    res.json(matches.map(m => ({
+      ...m,
+      myPrediction: predMap.get(m.id) ?? null,
+    })));
+  } catch (err) { next(err); }
+});
+
+// Lab Fase 2: editar cualquier campo de un partido KO en un solo call.
+// Acepta: homeTeamId, awayTeamId, homeGoals, awayGoals, winnerTeamId,
+// wentToPenalties, status. Auto-deriva winnerTeamId si el marcador
+// no es empate y no se envia.
+adminRouter.patch('/ko-matches/:id', async (req, res, next) => {
+  try {
+    const matchId = req.params.id as string;
+    const existing = await prisma.match.findUnique({ where: { id: matchId } });
+    if (!existing) {
+      res.status(404).json({ error: 'Partido no existe' });
+      return;
+    }
+    if (existing.stage !== 'KNOCKOUT') {
+      res.status(400).json({ error: 'Solo aplica a partidos KO' });
+      return;
+    }
+
+    const {
+      homeTeamId, awayTeamId,
+      homeGoals, awayGoals,
+      winnerTeamId, wentToPenalties,
+      status,
+    } = req.body;
+
+    const data: Record<string, any> = {};
+    if (homeTeamId !== undefined) data.homeTeamId = homeTeamId;
+    if (awayTeamId !== undefined) data.awayTeamId = awayTeamId;
+    if (homeGoals !== undefined) data.homeGoals = homeGoals;
+    if (awayGoals !== undefined) data.awayGoals = awayGoals;
+    if (wentToPenalties !== undefined) data.wentToPenalties = wentToPenalties;
+    if (status !== undefined) data.status = status;
+
+    // Resolver winnerTeamId
+    const finalHome = data.homeTeamId ?? existing.homeTeamId;
+    const finalAway = data.awayTeamId ?? existing.awayTeamId;
+    const finalHomeGoals = data.homeGoals ?? existing.homeGoals;
+    const finalAwayGoals = data.awayGoals ?? existing.awayGoals;
+    if (winnerTeamId !== undefined) {
+      data.winnerTeamId = winnerTeamId;
+    } else if (typeof finalHomeGoals === 'number' && typeof finalAwayGoals === 'number') {
+      if (finalHomeGoals > finalAwayGoals) data.winnerTeamId = finalHome;
+      else if (finalAwayGoals > finalHomeGoals) data.winnerTeamId = finalAway;
+    }
+
+    const match = await prisma.match.update({ where: { id: matchId }, data });
+    await recalculateAll();
+    res.json(match);
+  } catch (err) { next(err); }
+});
+
 // Update match result
 adminRouter.patch('/matches/:id/result', async (req, res, next) => {
   try {

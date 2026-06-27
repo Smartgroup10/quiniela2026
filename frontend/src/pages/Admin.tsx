@@ -15,10 +15,12 @@ import AdminGroupsTab from './admin/AdminGroupsTab';
 import AdminBonusTab from './admin/AdminBonusTab';
 import AdminScoringTab from './admin/AdminScoringTab';
 import AdminUsersTab from './admin/AdminUsersTab';
+import AdminPhase2LabTab from './admin/AdminPhase2LabTab';
 
 const SUPER_ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
   { key: 'groups',    label: 'Grupos',     icon: <TeamOutlined /> },
+  { key: 'phase2lab', label: 'Lab Fase 2', icon: <TrophyOutlined /> },
 ];
 
 const COMMON_TABS = [
@@ -48,6 +50,7 @@ export default function Admin() {
           <>
             <div style={{ display: activeTab === 'dashboard' ? 'block' : 'none' }}><AdminDashboardTab /></div>
             <div style={{ display: activeTab === 'groups'    ? 'block' : 'none' }}><AdminGroupsTab /></div>
+            <div style={{ display: activeTab === 'phase2lab' ? 'block' : 'none' }}><AdminPhase2LabTab /></div>
           </>
         )}
         <div style={{ display: activeTab === 'matches'   ? 'block' : 'none' }}><AdminMatchesTab /></div>

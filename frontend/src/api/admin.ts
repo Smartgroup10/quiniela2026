@@ -144,4 +144,46 @@ export const adminApi = {
       byRound: Record<string, number>;
       unknownStages: string[];
     }>('/admin/football/import-knockout'),
+
+  // Lab Fase 2
+  listKoMatches: () => api.get<KoMatchWithPrediction[]>('/admin/ko-matches'),
+  updateKoMatch: (id: string, data: Partial<KoMatchPatch>) =>
+    api.patch<KoMatchWithPrediction>(`/admin/ko-matches/${id}`, data),
 };
+
+export interface KoMatchWithPrediction {
+  id: string;
+  stage: string;
+  round: string | null;
+  matchNumber: number;
+  kickoffAt: string;
+  venue: string | null;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
+  homeGoals: number | null;
+  awayGoals: number | null;
+  winnerTeamId: string | null;
+  wentToPenalties: boolean;
+  status: string;
+  manuallyLocked: boolean;
+  myPrediction: {
+    id: string;
+    predictedHomeTeamId: string | null;
+    predictedAwayTeamId: string | null;
+    homeGoals: number;
+    awayGoals: number;
+    winnerTeamId: string;
+    wentToPenalties: boolean;
+    pointsEarned: number;
+  } | null;
+}
+
+export interface KoMatchPatch {
+  homeTeamId: string | null;
+  awayTeamId: string | null;
+  homeGoals: number | null;
+  awayGoals: number | null;
+  winnerTeamId: string | null;
+  wentToPenalties: boolean;
+  status: 'SCHEDULED' | 'LIVE' | 'FINISHED';
+}
