@@ -91,6 +91,10 @@ bracketPredictionsRouter.put('/:matchId', requireAuth, async (req, res, next) =>
         throw new ValidationError('winnerTeamId debe ser uno de los equipos predichos');
       }
     }
+    // Si la prediccion NO es empate, no puede haber ido a penaltis.
+    if (data.wentToPenalties && data.homeGoals !== data.awayGoals) {
+      throw new ValidationError('Penaltis solo aplica si predices empate');
+    }
 
     const prediction = await prisma.bracketPrediction.upsert({
       where: { userId_matchId: { userId, matchId } },

@@ -58,6 +58,13 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
     // si empate, dejamos winnerTeamId tal como esta (eleccion manual en penaltis)
   }, [homeGoals, awayGoals, home, away]);
 
+  // Si la prediccion deja de ser empate, desactivar penaltis automaticamente
+  useEffect(() => {
+    if (homeGoals != null && awayGoals != null && homeGoals !== awayGoals && wentToPenalties) {
+      setWentToPenalties(false);
+    }
+  }, [homeGoals, awayGoals, wentToPenalties]);
+
   const handleSave = async () => {
     if (homeGoals == null || awayGoals == null || !winnerTeamId) {
       message.warning('Completa marcador y ganador');
@@ -169,16 +176,31 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
         </button>
       </div>
 
-      {/* Penaltis toggle */}
-      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: V.fg1, fontSize: 12 }}>
-        <Switch
-          size="small"
-          checked={wentToPenalties}
-          onChange={setWentToPenalties}
-          disabled={locked || teamsTBD}
-        />
-        Penaltis
-      </label>
+      {/* Penaltis toggle — solo permitido si la prediccion es empate */}
+      {(() => {
+        const isDraw = homeGoals != null && awayGoals != null && homeGoals === awayGoals;
+        const penaltiesDisabled = locked || teamsTBD || !isDraw;
+        return (
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            color: penaltiesDisabled ? V.fg3 : V.fg1,
+            fontSize: 12,
+          }}>
+            <Switch
+              size="small"
+              checked={wentToPenalties}
+              onChange={setWentToPenalties}
+              disabled={penaltiesDisabled}
+            />
+            Penaltis
+            {!isDraw && homeGoals != null && awayGoals != null && (
+              <span style={{ color: V.fg3, fontSize: 10, fontStyle: 'italic' }}>
+                (solo si empatas)
+              </span>
+            )}
+          </label>
+        );
+      })()}
 
       {/* Si fue a penaltis Y es empate -> dos checks para marcar ganador en la tanda */}
       {wentToPenalties && homeGoals != null && awayGoals != null && homeGoals === awayGoals && (

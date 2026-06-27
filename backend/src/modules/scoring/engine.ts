@@ -114,9 +114,13 @@ export function scoreBracketMatch(
   }
 
   // 3. Penaltis (+1) — bonus si predijiste tanda Y aciertas quien gana
-  //    en penaltis. Requiere ganador correcto porque "gana en penaltis"
-  //    = "gana el partido" cuando va a la tanda.
-  if (real.wentToPenalties && pred.wentToPenalties && winnerCorrect) {
+  //    en penaltis. Requiere:
+  //    - el partido real fue a penaltis,
+  //    - tu prediccion marca "wentToPenalties=true",
+  //    - tu prediccion es empate (sin empate no se va a penaltis),
+  //    - ganador correcto (gana en penaltis = gana el partido).
+  const predIsDraw = pred.homeGoals === pred.awayGoals;
+  if (real.wentToPenalties && pred.wentToPenalties && predIsDraw && winnerCorrect) {
     pts += rules.knockoutPenalties;
   }
 
