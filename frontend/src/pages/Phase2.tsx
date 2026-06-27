@@ -216,7 +216,7 @@ export default function Phase2() {
           <div style={{ display: 'flex', gap: 12, minWidth: 'max-content' }}>
             {ROUND_ORDER.filter(r => (byRound[r] || []).length > 0).map((round) => (
               <div key={round} style={{
-                width: 240, flex: '0 0 240px',
+                width: 270, flex: '0 0 270px',
                 display: 'flex', flexDirection: 'column', gap: 12,
               }}>
                 <div style={{

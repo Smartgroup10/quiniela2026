@@ -115,26 +115,27 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
           disabled={teamsTBD || locked || homeGoals == null || awayGoals == null || homeGoals !== awayGoals}
           onClick={() => home && setWinnerTeamId(home.id)}
           style={{
-            display: 'flex', alignItems: 'center', gap: 6,
+            display: 'flex', alignItems: 'center', gap: 5,
             background: winnerTeamId === home?.id ? 'rgba(212,169,60,0.18)' : 'transparent',
             border: `1px solid ${winnerTeamId === home?.id ? V.gold : V.line}`,
-            borderRadius: 8, padding: '6px 8px',
-            color: V.fg0, fontSize: 13, fontWeight: 600,
+            borderRadius: 8, padding: '5px 6px',
+            color: V.fg0, fontSize: 12, fontWeight: 600,
             cursor: !teamsTBD && !locked && homeGoals === awayGoals ? 'pointer' : 'default',
             textAlign: 'left',
+            minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap',
           }}
         >
-          {home ? <><TeamFlag code={home.code} size={18} /> {home.code}</> : <span style={{ color: V.fg3 }}>TBD</span>}
+          {home ? <><TeamFlag code={home.code} size={16} /> {home.code}</> : <span style={{ color: V.fg3 }}>TBD</span>}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <InputNumber
             min={0} max={20}
             value={homeGoals}
             onChange={(v) => setHomeGoals(v == null ? null : Number(v))}
             disabled={locked || teamsTBD}
             size="small"
-            style={{ width: 50 }}
+            style={{ width: 42 }}
             controls={false}
           />
           <span style={{ color: V.fg3, fontWeight: 600 }}>-</span>
@@ -144,7 +145,7 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
             onChange={(v) => setAwayGoals(v == null ? null : Number(v))}
             disabled={locked || teamsTBD}
             size="small"
-            style={{ width: 50 }}
+            style={{ width: 42 }}
             controls={false}
           />
         </div>
@@ -154,16 +155,17 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
           disabled={teamsTBD || locked || homeGoals == null || awayGoals == null || homeGoals !== awayGoals}
           onClick={() => away && setWinnerTeamId(away.id)}
           style={{
-            display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end',
+            display: 'flex', alignItems: 'center', gap: 5, justifyContent: 'flex-end',
             background: winnerTeamId === away?.id ? 'rgba(212,169,60,0.18)' : 'transparent',
             border: `1px solid ${winnerTeamId === away?.id ? V.gold : V.line}`,
-            borderRadius: 8, padding: '6px 8px',
-            color: V.fg0, fontSize: 13, fontWeight: 600,
+            borderRadius: 8, padding: '5px 6px',
+            color: V.fg0, fontSize: 12, fontWeight: 600,
             cursor: !teamsTBD && !locked && homeGoals === awayGoals ? 'pointer' : 'default',
             textAlign: 'right',
+            minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap',
           }}
         >
-          {away ? <>{away.code} <TeamFlag code={away.code} size={18} /></> : <span style={{ color: V.fg3 }}>TBD</span>}
+          {away ? <>{away.code} <TeamFlag code={away.code} size={16} /></> : <span style={{ color: V.fg3 }}>TBD</span>}
         </button>
       </div>
 
