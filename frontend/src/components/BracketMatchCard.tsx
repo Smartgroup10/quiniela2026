@@ -167,17 +167,88 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
         </button>
       </div>
 
-      {/* Penaltis toggle + save */}
+      {/* Penaltis toggle */}
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: V.fg1, fontSize: 12 }}>
+        <Switch
+          size="small"
+          checked={wentToPenalties}
+          onChange={setWentToPenalties}
+          disabled={locked || teamsTBD}
+        />
+        Penaltis
+      </label>
+
+      {/* Si fue a penaltis Y es empate -> dos checks para marcar ganador en la tanda */}
+      {wentToPenalties && homeGoals != null && awayGoals != null && homeGoals === awayGoals && (
+        <div style={{
+          background: 'rgba(212,169,60,0.10)',
+          border: `1px solid ${V.gold}`,
+          borderRadius: 8,
+          padding: '8px 10px',
+          display: 'flex', flexDirection: 'column', gap: 6,
+        }}>
+          <div style={{ fontSize: 10, color: V.fg2, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
+            Gana en penaltis:
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              type="button"
+              disabled={!home || locked}
+              onClick={() => home && setWinnerTeamId(home.id)}
+              style={{
+                flex: 1,
+                display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
+                background: winnerTeamId === home?.id ? 'rgba(212,169,60,0.30)' : 'transparent',
+                border: `1px solid ${winnerTeamId === home?.id ? V.gold : V.line}`,
+                borderRadius: 6, padding: '5px 8px',
+                color: V.fg0, fontSize: 12, fontWeight: 600,
+                cursor: !locked && home ? 'pointer' : 'default',
+              }}
+            >
+              <span style={{
+                width: 14, height: 14, borderRadius: 3,
+                border: `1.5px solid ${winnerTeamId === home?.id ? V.gold : V.fg3}`,
+                background: winnerTeamId === home?.id ? V.gold : 'transparent',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                color: '#0a0d14', fontSize: 10, fontWeight: 700,
+              }}>{winnerTeamId === home?.id ? '✓' : ''}</span>
+              {home ? <><TeamFlag code={home.code} size={14} /> {home.code}</> : 'TBD'}
+            </button>
+            <button
+              type="button"
+              disabled={!away || locked}
+              onClick={() => away && setWinnerTeamId(away.id)}
+              style={{
+                flex: 1,
+                display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
+                background: winnerTeamId === away?.id ? 'rgba(212,169,60,0.30)' : 'transparent',
+                border: `1px solid ${winnerTeamId === away?.id ? V.gold : V.line}`,
+                borderRadius: 6, padding: '5px 8px',
+                color: V.fg0, fontSize: 12, fontWeight: 600,
+                cursor: !locked && away ? 'pointer' : 'default',
+              }}
+            >
+              <span style={{
+                width: 14, height: 14, borderRadius: 3,
+                border: `1.5px solid ${winnerTeamId === away?.id ? V.gold : V.fg3}`,
+                background: winnerTeamId === away?.id ? V.gold : 'transparent',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                color: '#0a0d14', fontSize: 10, fontWeight: 700,
+              }}>{winnerTeamId === away?.id ? '✓' : ''}</span>
+              {away ? <><TeamFlag code={away.code} size={14} /> {away.code}</> : 'TBD'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Save */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: V.fg1, fontSize: 12 }}>
-          <Switch
-            size="small"
-            checked={wentToPenalties}
-            onChange={setWentToPenalties}
-            disabled={locked || teamsTBD}
-          />
-          Penaltis
-        </label>
+        {myPrediction && !saving && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: V.green, fontSize: 11 }}>
+            <CheckCircleOutlined /> Guardada
+          </span>
+        )}
+        <div style={{ flex: 1 }} />
         {!locked && !teamsTBD && (
           <button
             type="button"
@@ -191,9 +262,6 @@ export default function BracketMatchCard({ data, teamMap, canEdit, derivedHomeTe
           >
             <SaveOutlined /> {saving ? 'Guardando…' : 'Guardar'}
           </button>
-        )}
-        {myPrediction && !saving && (
-          <CheckCircleOutlined style={{ color: V.green, fontSize: 14 }} />
         )}
       </div>
     </div>
