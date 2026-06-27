@@ -84,38 +84,40 @@ export function scoreBracketMatch(
 ): number {
   let pts = 0;
 
-  // 1. Winner correct?
   const winnerCorrect = pred.winnerTeamId === real.winnerTeamId;
-  if (!winnerCorrect) return 0;
 
-  pts += rules.knockoutWinner; // +3
-
-  // 2. Do both teams in the matchup coincide?
+  // ¿El cruce predicho coincide con el real?
   const pairingMatches =
     pred.predictedHomeTeamId &&
     pred.predictedAwayTeamId &&
     ((pred.predictedHomeTeamId === real.homeTeamId && pred.predictedAwayTeamId === real.awayTeamId) ||
       (pred.predictedHomeTeamId === real.awayTeamId && pred.predictedAwayTeamId === real.homeTeamId));
 
+  // 1. Ganador correcto (+3) — depende solo del equipo, no del cruce
+  if (winnerCorrect) pts += rules.knockoutWinner;
+
+  // 2. Marcador exacto al final del tiempo reglamentario (+3) —
+  //    depende SOLO del cruce coincidente y del marcador.
+  //    Independiente del ganador: si el partido es 1-1 con penaltis
+  //    y aciertas 1-1, sumas +3 aunque hayas fallado quien gana en
+  //    la tanda.
+  //    Football-data.org devuelve fullTime = goles al final del tiempo
+  //    correspondiente (excluye penaltis), que es lo que guardamos en
+  //    match.homeGoals/awayGoals.
   if (pairingMatches) {
-    // 3. Marcador exacto al final del partido reglamentario:
-    //    - 90 minutos si hubo ganador en tiempo regular
-    //    - 120 minutos si fue a prorroga (con o sin penaltis)
-    //    Football-data.org devuelve fullTime = goles al final del tiempo
-    //    correspondiente (excluye penaltis), que es lo que guardamos en
-    //    match.homeGoals/awayGoals.
     const exactScore =
       (pred.homeGoals === real.homeGoals && pred.awayGoals === real.awayGoals) ||
       (pred.predictedHomeTeamId === real.awayTeamId &&
         pred.homeGoals === real.awayGoals &&
         pred.awayGoals === real.homeGoals);
-
     if (exactScore) pts += rules.knockoutExactScore;
   }
 
-  // 4. Penalties bonus
-  if (real.wentToPenalties && pred.wentToPenalties) {
-    pts += rules.knockoutPenalties; // +1
+  // 3. Penaltis (+1) — bonus si predijiste tanda Y aciertas quien gana
+  //    en penaltis. Requiere ganador correcto porque "gana en penaltis"
+  //    = "gana el partido" cuando va a la tanda.
+  if (real.wentToPenalties && pred.wentToPenalties && winnerCorrect) {
+    pts += rules.knockoutPenalties;
   }
 
   return pts;

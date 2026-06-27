@@ -284,8 +284,8 @@ export default function Rules() {
           icon="🏆"
           rows={[
             { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza. Si tu ganador coincide con el real (aunque su rival no), igual cobras.' },
-            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'SOLO se evalúa si los DOS equipos del cruce coinciden con los reales. Si tu cruce era ESP vs FRA pero el real fue ESP vs ITA, el marcador no cuenta aunque coincida.' },
-            { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si tu predicción dice "fue a penaltis" Y aciertas quién gana la tanda. No exige acertar el cruce.' },
+            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'SOLO se evalúa si los DOS equipos del cruce coinciden con los reales. Es INDEPENDIENTE del ganador: si predices 1-1 y queda 1-1, cobras +3 aunque falles quién gana en penaltis.' },
+            { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si tu predicción dice "fue a penaltis" Y aciertas quién gana la tanda. Requiere acertar el ganador.' },
             { label: 'Campeón (Fase 2)', points: sc?.championPhase2 ?? 8, desc: 'Predicción de campeón en Fase 2 (menos puntos que en Fase 1)' },
           ]}
         />
@@ -331,20 +331,20 @@ export default function Rules() {
             borderRadius: 8, padding: '12px 14px', fontSize: 12, color: V.fg1,
             lineHeight: 1.6, marginTop: 8,
           }}>
-            <strong style={{ color: V.fg0 }}>Ejemplo 2 — Marcador OK pero ganador en penaltis fallado:</strong> tu predicción es
+            <strong style={{ color: V.fg0 }}>Ejemplo 2 — Cruce y marcador OK pero ganador en penaltis fallado:</strong> tu predicción es
             <strong> FRA vs ESP 1-1 gana FRA en penaltis</strong>. El partido real es
             <strong> FRA vs ESP 1-1 gana ESP en penaltis</strong>.
             <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
               <li><strong style={{ color: V.red }}>0</strong> ganador (FRA ≠ ESP)</li>
-              <li><strong style={{ color: V.red }}>0</strong> marcador exacto: <em>aunque acertaste 1-1, sin acertar ganador NO suma nada</em></li>
-              <li><strong style={{ color: V.red }}>0</strong> penaltis: <em>tampoco suma sin acertar ganador</em></li>
-              <li><strong style={{ color: V.gold2 }}>Total: 0 pts</strong></li>
+              <li><strong style={{ color: V.green }}>+3</strong> marcador exacto (1-1 al final del tiempo + cruce coincide)</li>
+              <li><strong style={{ color: V.red }}>0</strong> penaltis (requiere acertar ganador)</li>
+              <li><strong style={{ color: V.gold2 }}>Total: 3 pts</strong></li>
             </ul>
           </div>
           <p style={{ margin: '10px 0 0', fontSize: 12, color: V.fg2, fontStyle: 'italic' }}>
-            Resumen: <strong>acertar el ganador es condición indispensable</strong>. Si fallas el
-            ganador (en tiempo regular o en penaltis), no sumas nada en ese partido aunque
-            coincida el marcador.
+            Resumen: los 3 bloques (<strong>ganador</strong>, <strong>marcador exacto</strong>, <strong>penaltis</strong>) se
+            suman por separado. El marcador exacto solo exige cruce coincidente; el bonus de
+            penaltis solo aplica si también aciertas el ganador.
           </p>
         </div>
 
