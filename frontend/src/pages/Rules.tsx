@@ -316,8 +316,8 @@ export default function Rules() {
             borderRadius: 8, padding: '12px 14px', fontSize: 12, color: V.fg1,
             lineHeight: 1.6,
           }}>
-            <strong style={{ color: V.fg0 }}>Ejemplo:</strong> tu predicción en cuartos es
-            <strong> FRA vs ESP 1-1 gana FRA en penaltis</strong>. El partido real resulta ser
+            <strong style={{ color: V.fg0 }}>Ejemplo 1 — Cruce distinto:</strong> tu predicción es
+            <strong> FRA vs ESP 1-1 gana FRA en penaltis</strong>. El partido real es
             <strong> FRA vs ALE 1-1 gana FRA en penaltis</strong>.
             <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
               <li><strong style={{ color: V.green }}>+3</strong> ganador correcto (FRA = FRA)</li>
@@ -326,9 +326,25 @@ export default function Rules() {
               <li><strong style={{ color: V.gold2 }}>Total: 4 pts</strong></li>
             </ul>
           </div>
+          <div style={{
+            background: V.bg1, border: `1px solid ${V.line}`,
+            borderRadius: 8, padding: '12px 14px', fontSize: 12, color: V.fg1,
+            lineHeight: 1.6, marginTop: 8,
+          }}>
+            <strong style={{ color: V.fg0 }}>Ejemplo 2 — Marcador OK pero ganador en penaltis fallado:</strong> tu predicción es
+            <strong> FRA vs ESP 1-1 gana FRA en penaltis</strong>. El partido real es
+            <strong> FRA vs ESP 1-1 gana ESP en penaltis</strong>.
+            <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
+              <li><strong style={{ color: V.red }}>0</strong> ganador (FRA ≠ ESP)</li>
+              <li><strong style={{ color: V.red }}>0</strong> marcador exacto: <em>aunque acertaste 1-1, sin acertar ganador NO suma nada</em></li>
+              <li><strong style={{ color: V.red }}>0</strong> penaltis: <em>tampoco suma sin acertar ganador</em></li>
+              <li><strong style={{ color: V.gold2 }}>Total: 0 pts</strong></li>
+            </ul>
+          </div>
           <p style={{ margin: '10px 0 0', fontSize: 12, color: V.fg2, fontStyle: 'italic' }}>
-            Resumen: el ganador y el bonus de penaltis dependen del <strong>equipo</strong>; el
-            marcador exacto depende del <strong>cruce completo</strong>.
+            Resumen: <strong>acertar el ganador es condición indispensable</strong>. Si fallas el
+            ganador (en tiempo regular o en penaltis), no sumas nada en ese partido aunque
+            coincida el marcador.
           </p>
         </div>
 
