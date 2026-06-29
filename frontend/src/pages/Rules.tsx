@@ -284,7 +284,7 @@ export default function Rules() {
           icon="🏆"
           rows={[
             { label: 'Ganador del cruce', points: sc?.knockoutWinner ?? 3, desc: 'Acertaste qué equipo avanza. Si tu ganador coincide con el real (aunque su rival no), igual cobras.' },
-            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'SOLO se evalúa si los DOS equipos del cruce coinciden con los reales. Es INDEPENDIENTE del ganador: si predices 1-1 y queda 1-1, cobras +3 aunque falles quién gana en penaltis.' },
+            { label: 'Marcador exacto (final del partido)', points: sc?.knockoutExactScore ?? 3, desc: 'Cada equipo del cruce debe haber metido los MISMOS goles que en la realidad. Ej: si predices "Japón 2-1 Brasil" y el real es "Brasil 2-1 Japón", NO cobras: Brasil metió 2 en realidad pero 1 en tu predicción.' },
             { label: 'Acierta penaltis', points: sc?.knockoutPenalties ?? 1, desc: 'Bonus extra si tu predicción dice "fue a penaltis" Y aciertas quién gana la tanda. Requiere acertar el ganador.' },
             { label: 'Campeón (Fase 2)', points: sc?.championPhase2 ?? 8, desc: 'Predicción de campeón en Fase 2 (menos puntos que en Fase 1)' },
           ]}

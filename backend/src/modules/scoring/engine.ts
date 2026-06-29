@@ -97,20 +97,25 @@ export function scoreBracketMatch(
   if (winnerCorrect) pts += rules.knockoutWinner;
 
   // 2. Marcador exacto al final del tiempo reglamentario (+3) —
-  //    depende SOLO del cruce coincidente y del marcador.
-  //    Independiente del ganador: si el partido es 1-1 con penaltis
-  //    y aciertas 1-1, sumas +3 aunque hayas fallado quien gana en
-  //    la tanda.
-  //    Football-data.org devuelve fullTime = goles al final del tiempo
-  //    correspondiente (excluye penaltis), que es lo que guardamos en
-  //    match.homeGoals/awayGoals.
+  //    requiere que cada equipo del cruce haya metido el MISMO numero
+  //    de goles tanto en la prediccion como en el partido real.
+  //
+  //    Ejemplo: si predices "Japon 2-1 Brasil" (gana Japon) y el real
+  //    es "Brasil 2-1 Japon" (gana Brasil), NO es marcador exacto:
+  //    Brasil mete 2 en la realidad pero 1 en tu prediccion.
+  //
+  //    Manejamos los dos casos (mismo orden home/away o invertido)
+  //    comparando goles por TeamId, no por posicion home/away en BD.
   if (pairingMatches) {
-    const exactScore =
-      (pred.homeGoals === real.homeGoals && pred.awayGoals === real.awayGoals) ||
-      (pred.predictedHomeTeamId === real.awayTeamId &&
-        pred.homeGoals === real.awayGoals &&
-        pred.awayGoals === real.homeGoals);
-    if (exactScore) pts += rules.knockoutExactScore;
+    const sameOrder =
+      pred.predictedHomeTeamId === real.homeTeamId &&
+      pred.homeGoals === real.homeGoals &&
+      pred.awayGoals === real.awayGoals;
+    const invertedOrder =
+      pred.predictedHomeTeamId === real.awayTeamId &&
+      pred.homeGoals === real.awayGoals &&
+      pred.awayGoals === real.homeGoals;
+    if (sameOrder || invertedOrder) pts += rules.knockoutExactScore;
   }
 
   // 3. Penaltis (+1) — bonus si predijiste tanda Y aciertas quien gana
