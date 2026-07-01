@@ -1,7 +1,8 @@
 import { env } from '../../config/env.js';
 import prisma from '../../lib/prisma.js';
 import { recalculateAll } from '../scoring/recalculate.js';
-import { seedR32FromFinishedGroups } from '../admin/realStandings.js';
+// seedR32FromFinishedGroups NO se importa aqui a proposito: no debe
+// ejecutarse automaticamente porque sobrescribe cruces del bracket.
 
 const API_BASE = 'https://api.football-data.org/v4';
 
@@ -145,10 +146,12 @@ export async function syncResults(): Promise<SyncResult> {
   }
 
   // Recalculate scores if anything changed.
-  // Tambien sembramos R32 (sin marcar realFinalPosition para no impactar
-  // los puntos de Fase 1 automaticamente; el admin decide cuando hacerlo).
+  // NO se llama a seedR32FromFinishedGroups() automaticamente porque
+  // sobrescribiria los cruces del bracket (que ya vienen importados
+  // desde football-data.org con los cruces reales del Mundial). Si un
+  // admin quiere resembrar el bracket desde grupos, usa el boton
+  // "Cargar Equipos en Bracket" del panel manualmente.
   if (result.matchesUpdated > 0) {
-    await seedR32FromFinishedGroups();
     await recalculateAll();
   }
 
