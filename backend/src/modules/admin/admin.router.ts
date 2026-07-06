@@ -8,6 +8,7 @@ import { createUserSchema } from './admin.schemas.js';
 import * as adminService from './admin.service.js';
 import { generateKnockoutBracket } from './bracketGen.js';
 import { updateRealStandings, seedR32FromFinishedGroups } from './realStandings.js';
+import { triggerDailyEmailNow } from '../email/dailyEmailScheduler.js';
 
 export const adminRouter = Router();
 
@@ -277,6 +278,15 @@ adminRouter.get('/ko-matches', async (req, res, next) => {
       ...m,
       myPrediction: predMap.get(m.id) ?? null,
     })));
+  } catch (err) { next(err); }
+});
+
+// Forzar envio del correo diario ahora (con opcion de sobrescribir la fecha)
+adminRouter.post('/send-daily-email', superAdminOnly, async (req, res, next) => {
+  try {
+    const forceDate = typeof req.body?.date === 'string' ? req.body.date : undefined;
+    const result = await triggerDailyEmailNow(forceDate);
+    res.json(result);
   } catch (err) { next(err); }
 });
 
