@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Spin, Divider, message } from 'antd';
+import { Spin, Divider } from 'antd';
 import { Link } from 'react-router-dom';
-import { TrophyOutlined, UsergroupAddOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons';
-import { resultsApi, type ResultMatch, type AllPrediction } from '../api/results';
+import { TrophyOutlined } from '@ant-design/icons';
+import { resultsApi, type ResultMatch } from '../api/results';
+import PredictionsToggle from '../components/PredictionsToggle';
 import { teamsApi, type Team } from '../api/teams';
 import TeamFlag from '../components/TeamFlag';
 import GroupComparison from '../components/GroupComparison';
@@ -110,24 +111,6 @@ export default function Results() {
 
 function MatchCard({ match }: { match: ResultMatch }) {
   const pred = match.myPrediction;
-  const [showAll, setShowAll] = useState(false);
-  const [allPreds, setAllPreds] = useState<AllPrediction[] | null>(null);
-  const [loadingAll, setLoadingAll] = useState(false);
-
-  const toggleAll = async () => {
-    if (showAll) { setShowAll(false); return; }
-    if (allPreds) { setShowAll(true); return; }
-    setLoadingAll(true);
-    try {
-      const { data } = await resultsApi.getPredictions(match.id);
-      setAllPreds(data);
-      setShowAll(true);
-    } catch (err: any) {
-      message.error(err.response?.data?.error || 'No se pudieron cargar las predicciones');
-    } finally {
-      setLoadingAll(false);
-    }
-  };
 
   return (
     <div style={{
@@ -192,60 +175,7 @@ function MatchCard({ match }: { match: ResultMatch }) {
         )}
       </div>
 
-      {/* Botón "Ver predicciones de todos" */}
-      <button
-        onClick={toggleAll}
-        disabled={loadingAll}
-        style={{
-          marginTop: 10, width: '100%',
-          background: 'transparent',
-          border: `1px solid ${V.line}`,
-          borderRadius: 8, padding: '8px 10px',
-          color: V.fg1, fontSize: 12, fontWeight: 600,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          cursor: loadingAll ? 'default' : 'pointer',
-        }}
-      >
-        <UsergroupAddOutlined />
-        {loadingAll ? 'Cargando…' : showAll ? 'Ocultar predicciones' : 'Ver predicciones de todos'}
-        {!loadingAll && (showAll ? <CaretUpOutlined /> : <CaretDownOutlined />)}
-      </button>
-
-      {/* Tabla expandida */}
-      {showAll && allPreds && (
-        <div style={{
-          marginTop: 10, background: V.bg2, border: `1px solid ${V.line}`,
-          borderRadius: 8, padding: 8,
-        }}>
-          {allPreds.length === 0 ? (
-            <div style={{ color: V.fg2, fontSize: 12, textAlign: 'center', padding: 12 }}>
-              Nadie predijo este partido.
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: 6, fontSize: 12 }}>
-              <div style={{ color: V.fg2, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', paddingBottom: 4, borderBottom: `1px solid ${V.line}` }}>Usuario</div>
-              <div style={{ color: V.fg2, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', paddingBottom: 4, borderBottom: `1px solid ${V.line}`, textAlign: 'center' }}>Marcador</div>
-              <div style={{ color: V.fg2, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', paddingBottom: 4, borderBottom: `1px solid ${V.line}`, textAlign: 'center' }}>Ganador</div>
-              <div style={{ color: V.fg2, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', paddingBottom: 4, borderBottom: `1px solid ${V.line}`, textAlign: 'right' }}>Pts</div>
-              {allPreds.map((pr) => (
-                <>
-                  <div key={`${pr.userId}-name`} style={{ color: V.fg0, padding: '5px 0' }}>{pr.userName}</div>
-                  <div key={`${pr.userId}-score`} style={{ color: V.fg1, textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", padding: '5px 0' }}>
-                    {pr.homeGoals}-{pr.awayGoals}{pr.wentToPenalties ? ' [p]' : ''}
-                  </div>
-                  <div key={`${pr.userId}-winner`} style={{ color: V.fg1, textAlign: 'center', padding: '5px 0' }}>
-                    {pr.winnerTeam?.code || '—'}
-                  </div>
-                  <div key={`${pr.userId}-pts`} style={{
-                    color: pr.pointsEarned > 0 ? V.gold : V.fg3,
-                    textAlign: 'right', fontWeight: 700, padding: '5px 0',
-                  }}>+{pr.pointsEarned}</div>
-                </>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <PredictionsToggle matchId={match.id} />
     </div>
   );
 }

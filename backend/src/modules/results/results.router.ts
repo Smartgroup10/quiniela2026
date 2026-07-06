@@ -51,14 +51,22 @@ resultsRouter.get('/', requireAuth, async (req, res, next) => {
 });
 
 // Predicciones de TODOS los jugadores para un partido concreto.
-// Solo se muestra si el partido esta FINISHED o LIVE.
+// Se muestran si:
+//   - El partido esta FINISHED o LIVE, o
+//   - El bracket esta bloqueado (bracketLocked=true) -> nadie puede
+//     modificar sus predicciones asi que es seguro mostrar.
 resultsRouter.get('/:matchId/predictions', requireAuth, async (req, res, next) => {
   try {
     const matchId = req.params.matchId as string;
     const match = await prisma.match.findUnique({ where: { id: matchId } });
     if (!match) { res.status(404).json({ error: 'Partido no existe' }); return; }
-    if (match.status !== 'FINISHED' && match.status !== 'LIVE') {
-      res.status(403).json({ error: 'Las predicciones se muestran cuando el partido empiece' });
+    const tournament = await prisma.tournament.findFirst();
+    const canShow =
+      match.status === 'FINISHED' ||
+      match.status === 'LIVE' ||
+      (match.stage === 'KNOCKOUT' && tournament?.bracketLocked === true);
+    if (!canShow) {
+      res.status(403).json({ error: 'Las predicciones se mostraran cuando el bracket se cierre o empiece el partido' });
       return;
     }
 

@@ -11,6 +11,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useTournamentStore } from '../stores/tournamentStore';
 import { dashboardApi, type DashboardData, type LeaderboardEntry } from '../api/dashboard';
 import TeamFlag from '../components/TeamFlag';
+import PredictionsToggle from '../components/PredictionsToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
@@ -594,6 +595,8 @@ export default function Dashboard() {
                     {match.awayTeam && <TeamFlag code={match.awayTeam.code} size={24} />}
                   </div>
                 </div>
+
+                <PredictionsToggle matchId={match.id} compact />
               </div>
             ))}
           </div>
@@ -676,6 +679,7 @@ export default function Dashboard() {
                       <span className="mono" style={{ color: V.amber }}>● Sin pronóstico</span>
                     )}
                   </div>
+                  <PredictionsToggle matchId={match.id} compact />
                 </div>
               );
             })}
