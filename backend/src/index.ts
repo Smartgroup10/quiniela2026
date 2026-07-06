@@ -6,5 +6,9 @@ import { startDailyEmailScheduler } from './modules/email/dailyEmailScheduler.js
 app.listen(env.PORT, () => {
   console.log(`Backend running on http://localhost:${env.PORT}`);
   startAutoSync(10);
-  startDailyEmailScheduler(5);
+  if (process.env.DAILY_EMAIL_ENABLED === 'true') {
+    startDailyEmailScheduler(5);
+  } else {
+    console.log('[DailyEmail] Desactivado (DAILY_EMAIL_ENABLED != true)');
+  }
 });
