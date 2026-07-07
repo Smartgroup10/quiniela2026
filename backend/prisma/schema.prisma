@@ -33,6 +33,7 @@ model User {
   knockoutPoints     Int      @default(0)
   bonusPhase2Points  Int      @default(0)
   totalPoints        Int      @default(0)
+  manualBonusPoints  Int      @default(0)
 
   matchPredictions     MatchPrediction[]
   groupPredictions     GroupPrediction[]

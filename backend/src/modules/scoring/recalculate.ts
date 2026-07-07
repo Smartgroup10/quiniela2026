@@ -140,7 +140,12 @@ export async function recalculateAll() {
       await prisma.bracketPrediction.update({ where: { id: bp.id }, data: { pointsEarned: pts } });
     }
 
-    const totalPoints = matchPoints + groupPoints + bestThirdPoints + bonusPhase1Points + knockoutPoints + bonusPhase2Points;
+    // manualBonusPoints es un ajuste manual (p.ej. mejores terceros que
+    // se olvidaron marcar) que NO se recalcula desde predicciones.
+    // Lo respetamos y lo sumamos al total para que sobreviva a los
+    // recalculates automaticos.
+    const manualBonusPoints = (user as any).manualBonusPoints ?? 0;
+    const totalPoints = matchPoints + groupPoints + bestThirdPoints + bonusPhase1Points + knockoutPoints + bonusPhase2Points + manualBonusPoints;
 
     await prisma.user.update({
       where: { id: user.id },
