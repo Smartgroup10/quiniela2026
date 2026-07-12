@@ -29,19 +29,26 @@ specialPredictionsRouter.get('/me', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-specialPredictionsRouter.put('/', requireAuth, phaseGuard(['PHASE1_OPEN']), async (req, res, next) => {
+specialPredictionsRouter.put('/', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user!.sub;
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user?.phase1Available) throw new ForbiddenError('Fase 1 no disponible para tu cuenta');
 
-    // Block bonus predictions if admin locked them or after phase1ClosesAt
     const tournament = await prisma.tournament.findFirst();
-    if (tournament?.bonusPhase1Locked) {
-      throw new ForbiddenError('Los bonus han sido bloqueados por el administrador');
-    }
-    if (tournament?.phase1ClosesAt && new Date(tournament.phase1ClosesAt).getTime() <= Date.now()) {
-      throw new ForbiddenError('Los bonus se bloquearon al inicio del Mundial');
+    // Ventana ad-hoc del admin: si bonusUnlocked=true, saltamos todos los
+    // demas guards. Sirve para reabrir bonus por 10 min o lo que sea.
+    if (!tournament?.bonusUnlocked) {
+      // Guard original: solo en PHASE1_OPEN
+      if (tournament?.status !== 'PHASE1_OPEN') {
+        throw new ForbiddenError('Esta fase no está abierta');
+      }
+      if (tournament?.bonusPhase1Locked) {
+        throw new ForbiddenError('Los bonus han sido bloqueados por el administrador');
+      }
+      if (tournament?.phase1ClosesAt && new Date(tournament.phase1ClosesAt).getTime() <= Date.now()) {
+        throw new ForbiddenError('Los bonus se bloquearon al inicio del Mundial');
+      }
     }
 
     const data = specialsSchema.parse(req.body);
